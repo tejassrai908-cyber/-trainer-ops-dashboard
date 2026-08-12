@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Trainer Ops Dashboard</title>
+<style>
+  :root{ --bg:#0f172a; --card:#1e293b; --line:#334155; --in:#273449; --txt:#e2e8f0; --mut:#94a3b8; --acc:#38bdf8; --ok:#34d399; --bad:#f87171; }
+  *{box-sizing:border-box}
+  body{font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--txt);padding:14px;margin:0}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;max-width:640px;margin:0 auto 14px}
+  h2{margin:0;font-size:18px}
+  .sec{margin-top:16px;padding-top:14px;border-top:1px solid var(--line)}
+  .sec h3{margin:0 0 10px;font-size:15px;color:var(--acc)}
+  label{display:block;font-size:12px;color:var(--mut);margin:10px 0 4px}
+  input,select,textarea{width:100%;padding:11px;border-radius:9px;border:1px solid var(--line);background:var(--in);color:var(--txt);font-size:15px;font-family:inherit}
+  textarea{resize:vertical;min-height:46px}
+  button{width:100%;margin-top:12px;padding:13px;border:0;border-radius:11px;background:var(--acc);color:#04293a;font-size:15px;font-weight:700;cursor:pointer}
+  button.ghost{background:transparent;border:1px solid var(--line);color:var(--txt);font-weight:600}
+  button.sm{margin-top:8px;padding:9px;font-size:13px;background:var(--in);color:var(--txt)}
+  button.rm{background:transparent;color:var(--bad);border:1px solid var(--line);width:auto;padding:8px 10px;font-size:13px;margin:0}
+  .row2{display:flex;gap:8px}
+  .row2>*{flex:1}
+  .act-row{display:flex;gap:8px;align-items:flex-start;margin-bottom:8px}
+  .act-row .a{flex:1.2} .act-row .c{flex:1.4}
+  .op-row{margin-bottom:12px;padding:10px;background:var(--in);border-radius:10px}
+  .op-row .lbl{font-weight:700;font-size:14px;margin-bottom:8px}
+  .bar{padding:9px 12px;border-radius:10px;font-size:13px;margin-bottom:10px;text-align:center;font-weight:600;background:rgba(52,211,153,.14);color:var(--ok)}
+  .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--ok);color:#04293a;padding:11px 18px;border-radius:10px;opacity:0;transition:.25s;font-weight:600;z-index:9}
+  .toast.show{opacity:1}
+  .dash{display:flex;align-items:center;padding:10px;border-bottom:1px solid var(--line);gap:10px}
+  .dash .n{flex:1;font-weight:600;font-size:14px}
+  .dash .a{flex:2;font-size:13px;color:var(--mut)}
+  .pill{display:inline-block;padding:3px 9px;border-radius:999px;font-size:11px;font-weight:700;white-space:nowrap}
+  .p-yes{background:rgba(52,211,153,.16);color:var(--ok)}
+  .p-no{background:rgba(148,163,184,.18);color:var(--mut)}
+  .wa-box{background:var(--in);border:1px solid var(--line);border-radius:10px;padding:12px;white-space:pre-wrap;font-size:13px;line-height:1.5;margin-top:8px}
+</style>
+</head>
+<body>
+
+<div class="card">
+  <h2>Trainer Ops Dashboard</h2>
+  <div class="bar" id="statusBar">Loading…</div>
+
+  <form id="form">
+    <div class="row2">
+      <div>
+        <label for="date">Date</label>
+        <input type="date" id="date" required>
+      </div>
+      <div>
+        <label for="trainer">Your Name (Trainer)</label>
+        <select id="trainer" required><option value="">-- select your name --</option></select>
+      </div>
+    </div>
+
+    <div class="sec">
+      <h3>1. Trainer Activity Update</h3>
+      <div id="actList"></div>
+      <button type="button" class="sm" id="addAct">+ Add activity</button>
+    </div>
+
+    <div class="sec">
+      <h3>2. Operations: status, checks &amp; readiness</h3>
+      <div id="opList"></div>
+    </div>
+
+    <button type="submit" id="submitBtn">Submit</button>
+  </form>
+</div>
+
+<div class="card">
+  <h3 style="color:var(--mut);margin:0 0 4px;font-size:15px">All 12 Trainers — Dashboard</h3>
+  <div class="row2" style="margin-top:10px">
+    <input type="date" id="viewDate">
+    <button type="button" class="ghost" id="loadBtn" style="margin-top:0">Load day</button>
+  </div>
+  <div id="dashWrap" style="margin-top:10px"></div>
+  <button type="button" class="ghost" id="copyBtn">📋 Copy WhatsApp update</button>
+  <div id="waWrap"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  var CFG = null;
+  var lastReport = null, lastDate = null;
+
+  function api(fn, opts) {
+    return fetch(fn, opts).then(function (r) { return r.json(); });
+  }
+  function toast(m) { var t = document.getElementById('toast'); t.textContent = m; t.className = 'toast show'; setTimeout(function(){ t.className='toast'; }, 2500); }
+  function esc(s){ return (s||'').toString().replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  function opt(list, sel){ return list.map(function(v){ return '<option'+(v===sel?' selected':'')+'>'+esc(v)+'</option>'; }).join(''); }
+
+  function copyText(t) {
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(function(){ toast('Copied to clipboard'); }, fallback);
+    else fallback(t);
+  }
+  function fallback(t) {
+    var ta = document.createElement('textarea'); ta.value = t; ta.style.position='fixed'; ta.style.top='-9999px';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); toast('Copied to clipboard'); } catch(e){ toast('Copy failed — long-press to copy'); }
+    document.body.removeChild(ta);
+  }
+
+  function addActivityRow(activity, comment) {
+    var div = document.createElement('div');
+    div.className = 'act-row';
+    div.innerHTML =
+      '<div class="a"><select class="act-sel"><option value="">-- activity --</option>'+opt(CFG.activities, activity)+'</select></div>' +
+      '<div class="c"><input class="act-com" placeholder="comment" value="'+esc(comment||'')+'"></div>' +
+      '<button type="button" class="rm" onclick="this.parentNode.remove()">✕</button>';
+    document.getElementById('actList').appendChild(div);
+  }
+
+  function buildOps() {
+    var wrap = document.getElementById('opList');
+    CFG.operations.forEach(function (op) {
+      var d = document.createElement('div');
+      d.className = 'op-row';
+      d.innerHTML =
+        '<div class="lbl">'+esc(op.label)+'</div>' +
+        '<div class="row2">' +
+          '<div><label>Status</label><select data-op="'+op.id+'" data-f="status"><option>NA</option>'+opt(CFG.opStatus.slice(0,3),'NA')+'</select></div>' +
+          '<div><label>Readiness</label><select data-op="'+op.id+'" data-f="readiness"><option>NA</option>'+opt(CFG.opReadiness.slice(0,2),'NA')+'</select></div>' +
+        '</div>' +
+        '<label>Checks / Count</label><input data-op="'+op.id+'" data-f="checks" placeholder="e.g. 4/4 or done">' +
+        '<label>Comment</label><textarea data-op="'+op.id+'" data-f="comment" placeholder="optional note"></textarea>';
+      wrap.appendChild(d);
+    });
+  }
+
+  api('/api/config').then(function (cfg) {
+    CFG = cfg;
+    document.getElementById('statusBar').textContent = 'Connected ✓';
+    document.getElementById('date').value = cfg.today;
+    document.getElementById('viewDate').value = cfg.today;
+    var t = document.getElementById('trainer');
+    cfg.trainers.forEach(function (n){ var o=document.createElement('option'); o.value=n; o.textContent=n; t.appendChild(o); });
+    addActivityRow();
+    buildOps();
+    loadDashboard(cfg.today);
+  }).catch(function (err) { document.getElementById('statusBar').textContent = '⚠ ' + err; });
+
+  document.getElementById('addAct').addEventListener('click', function(){ addActivityRow(); });
+
+  document.getElementById('form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var activities = [];
+    document.querySelectorAll('#actList .act-row').forEach(function (row) {
+      var a = row.querySelector('.act-sel').value;
+      var c = row.querySelector('.act-com').value;
+      if (a) activities.push({ activity: a, comment: c });
+    });
+    var operations = {};
+    document.querySelectorAll('#opList [data-op]').forEach(function (el) {
+      var id = el.getAttribute('data-op'), f = el.getAttribute('data-f');
+      operations[id] = operations[id] || {};
+      operations[id][f] = el.value;
+    });
+    var entry = {
+      date: document.getElementById('date').value,
+      trainer: document.getElementById('trainer').value,
+      activities: activities,
+      operations: operations
+    };
+    if (!entry.trainer) { alert('Select your name.'); return; }
+    if (!activities.length) { alert('Add at least one activity in section 1.'); return; }
+    var btn = document.getElementById('submitBtn');
+    btn.disabled = true; btn.textContent = 'Submitting…';
+    api('/api/submit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(entry) })
+      .then(function (res) {
+        btn.disabled = false; btn.textContent = 'Submit';
+        if (res.status === 'error') { alert(res.message); return; }
+        toast(res.updated ? 'Updated '+entry.trainer : 'Saved '+entry.trainer);
+        loadDashboard(entry.date);
+      })
+      .catch(function (err) { btn.disabled = false; btn.textContent = 'Submit'; alert('Error: ' + err); });
+  });
+
+  document.getElementById('loadBtn').addEventListener('click', function () {
+    var d = document.getElementById('viewDate').value;
+    if (!d) { alert('Pick a date.'); return; }
+    loadDashboard(d);
+  });
+
+  function loadDashboard(dateStr, cb) {
+    api('/api/report?date=' + encodeURIComponent(dateStr)).then(function (res) {
+      lastReport = res; lastDate = res.date;
+      renderDashboard(res.rows);
+      if (cb) cb();
+    }).catch(function (err) { document.getElementById('statusBar').textContent = '⚠ ' + err; if (cb) cb(); });
+  }
+
+  function renderDashboard(rows) {
+    var wrap = document.getElementById('dashWrap');
+    if (!rows || !rows.length) { wrap.innerHTML = '<p style="color:#94a3b8;font-size:13px">No data.</p>'; return; }
+    var html = '';
+    rows.forEach(function (r) {
+      var act = r.submitted ? r.activities.map(function (a){ return esc(a.activity); }).join(', ') : 'Yet to update';
+      var pill = r.submitted ? '<span class="pill p-yes">✔ Submitted</span>' : '<span class="pill p-no">Yet to update</span>';
+      html += '<div class="dash"><div class="n">'+esc(r.trainer)+'</div><div class="a">'+act+'</div>'+pill+'</div>';
+    });
+    var done = rows.filter(function(r){ return r.submitted; }).length;
+    html = '<p style="color:#94a3b8;font-size:13px;margin:0 0 6px">Submitted: '+done+'/'+rows.length+'</p>' + html;
+    wrap.innerHTML = html;
+  }
+
+  document.getElementById('copyBtn').addEventListener('click', function () {
+    var d = document.getElementById('viewDate').value;
+    if (!d) { alert('Pick a date first.'); return; }
+    api('/api/whatsapp?date=' + encodeURIComponent(d)).then(function (res) {
+      var txt = res.text;
+      document.getElementById('waWrap').innerHTML = '<div class="wa-box">'+esc(txt)+'</div>';
+      copyText(txt);
+    });
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,40 @@
+[
+  {
+    "timestamp": "2026-08-12T23:00:35",
+    "date": "2026-08-14",
+    "trainer": "Kalai",
+    "activities": [
+      {
+        "activity": "Technical Training Day 1",
+        "comment": "session done"
+      }
+    ],
+    "operations": {
+      "att": {
+        "status": "Done",
+        "checks": "",
+        "readiness": "Ready",
+        "comment": ""
+      }
+    }
+  },
+  {
+    "timestamp": "2026-08-12T23:00:35",
+    "date": "2026-08-14",
+    "trainer": "Faizan",
+    "activities": [
+      {
+        "activity": "Help Desk RM Support",
+        "comment": ""
+      }
+    ],
+    "operations": {
+      "rm": {
+        "status": "Pending",
+        "checks": "6/10",
+        "readiness": "Not Ready",
+        "comment": "short staff"
+      }
+    }
+  }
+]
