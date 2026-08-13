@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
 """Trainer - Day Activity dashboard (deployable on Render / any host).
 
-Operations model (per trainer, per day):
-  - MIS Update            : status "Updated" + mandatory date
-  - Attendance Regular.   : status (Regularized till date / Pending from date) + mandatory date
-  - Help Desk RM Support  : status "I Will Support at least" + count (2RM/4RM/6RM/10RM)
+Deliverables model (per trainer, per day):
+  - MIS Update              : status "Completed" + mandatory date
+  - Attendance Regularization: status "Completed"/"Pending" + mandatory date
+  - Help Desk Group - RM Support: number input 1-15 (stored as "N RM")
+  - NHT & Calender Block    : status Checked / Aware / Need to check
+  - Visit Barge             : status Following the updated process / Need to check for new process
 
+Regularity bars: per-trainer MIS % and Attendance % across all stored dates.
 Data persists in SQLite (trainerops.db) within the running instance.
 Run locally:  python app.py
 Run on host:  gunicorn -b 0.0.0.0:$PORT app:app
@@ -30,11 +33,14 @@ ACTIVITY_OPTIONS = [
     "Attendance Regularization", "Help Desk RM Support", "Weekly Off", "Leave", "Other"
 ]
 OPERATIONS = [
-    {"id": "mis", "label": "MIS Update", "statusOptions": ["Updated"], "requireDate": True},
+    {"id": "mis", "label": "MIS Update", "statusOptions": ["Completed"], "requireDate": True},
     {"id": "att", "label": "Attendance Regularization",
-     "statusOptions": ["Regularized till date", "Pending from date"], "requireDate": True},
-    {"id": "rm", "label": "Help Desk RM Support",
-     "statusOptions": ["I Will Support at least"], "countOptions": ["2RM", "4RM", "6RM", "10RM"]},
+     "statusOptions": ["Completed", "Pending"], "requireDate": True},
+    {"id": "rm", "label": "Help Desk Group - RM Support", "number": True, "min": 1, "max": 15},
+    {"id": "nhtcal", "label": "NHT & Calender Block",
+     "statusOptions": ["Checked", "Aware", "Need to check"]},
+    {"id": "vb", "label": "Visit Barge",
+     "statusOptions": ["Following the updated process", "Need to check for new process"]},
 ]
 
 
@@ -99,6 +105,19 @@ def api_submit():
     ops = {}
     for op in OPERATIONS:
         o = (e.get("operations") or {}).get(op["id"]) or {}
+        if op.get("number"):
+            val = (o.get("number") or "").strip()
+            if val:
+                try:
+                    n = int(val)
+                    if not (op["min"] <= n <= op["max"]):
+                        return jsonify({"status": "error",
+                                        "message": op["label"] + " must be between %d and %d" % (op["min"], op["max"])}), 400
+                    ops[op["id"]] = {"number": n}
+                except ValueError:
+                    return jsonify({"status": "error",
+                                    "message": op["label"] + " must be a number"}), 400
+            continue
         status = (o.get("status") or "").strip()
         if not status:
             continue
@@ -109,17 +128,10 @@ def api_submit():
                 return jsonify({"status": "error",
                                 "message": op["label"] + " needs a date"}), 400
             entry["date"] = d
-        if op.get("countOptions"):
-            c = (o.get("count") or "").strip()
-            if not c:
-                return jsonify({"status": "error",
-                                "message": op["label"] + " needs a count (e.g. 4RM)"}), 400
-            entry["count"] = c
         ops[op["id"]] = entry
 
     conn = get_db()
-    cur = conn.execute("SELECT id FROM entries WHERE date=? AND trainer=?",
-                       (e["date"], e["trainer"]))
+    cur = conn.execute("SELECT id FROM entries WHERE date=? AND trainer=?", (e["date"], e["trainer"]))
     row = cur.fetchone()
     payload = (datetime.datetime.now().isoformat(timespec="seconds"), e["date"], e["trainer"],
                json.dumps(activities, ensure_ascii=False), json.dumps(ops, ensure_ascii=False))
@@ -128,8 +140,7 @@ def api_submit():
                      payload + (row["id"],))
         updated = True
     else:
-        conn.execute("INSERT INTO entries (timestamp,date,trainer,activities,operations) VALUES (?,?,?,?,?)",
-                     payload)
+        conn.execute("INSERT INTO entries (timestamp,date,trainer,activities,operations) VALUES (?,?,?,?,?)", payload)
         updated = False
     conn.commit()
     conn.close()
@@ -155,6 +166,45 @@ def api_report():
     return jsonify({"rows": out, "date": date_str, "operations": OPERATIONS})
 
 
+@app.route("/api/regularity")
+def api_regularity():
+    """Per-trainer MIS % and Attendance % across all stored dates."""
+    conn = get_db()
+    rows = conn.execute("SELECT trainer, date, operations FROM entries").fetchall()
+    conn.close()
+    days = {}            # trainer -> set of dates they appear on
+    mis_done = {}        # trainer -> count of days with MIS Completed
+    att_done = {}        # trainer -> count of days with Attendance Completed
+    for r in rows:
+        t = r["trainer"]
+        days.setdefault(t, set()).add(r["date"])
+        ops = json.loads(r["operations"])
+        if ops.get("mis", {}).get("status") == "Completed":
+            mis_done[t] = mis_done.get(t, 0) + 1
+        if ops.get("att", {}).get("status") == "Completed":
+            att_done[t] = att_done.get(t, 0) + 1
+    out = []
+    tot_mis = tot_att = tot_days = 0
+    for t in TRAINERS:
+        d = len(days.get(t, set()))
+        m = mis_done.get(t, 0)
+        a = att_done.get(t, 0)
+        out.append({
+            "trainer": t,
+            "days": d,
+            "misPct": round(100 * m / d) if d else 0,
+            "attPct": round(100 * a / d) if d else 0,
+            "misDone": m, "attDone": a
+        })
+        tot_mis += m; tot_att += a; tot_days += d
+    return jsonify({
+        "rows": out,
+        "avgMisPct": round(100 * tot_mis / tot_days) if tot_days else 0,
+        "avgAttPct": round(100 * tot_att / tot_days) if tot_days else 0,
+        "totalDays": tot_days
+    })
+
+
 @app.route("/api/whatsapp")
 def api_whatsapp():
     date_str = request.args.get("date", today())
@@ -174,16 +224,13 @@ def api_whatsapp():
         })
 
     submitted = [d for d in data if d["submitted"]]
-
-    # Classification for the alert block
-    blockers = []  # attendance pending from date
+    blockers = []
     for d in data:
         att = d["operations"].get("att")
-        if att and att.get("status") == "Pending from date":
+        if att and att.get("status") == "Pending":
             blockers.append((d["trainer"], fmt(att.get("date", ""))))
     clear = [d["trainer"] for d in data
-             if d["submitted"]
-             and not (d["operations"].get("att", {}).get("status") == "Pending from date")]
+             if d["submitted"] and not (d["operations"].get("att", {}).get("status") == "Pending")]
 
     L = []
     L.append("📋 *Trainer - Day Activity — " + fmt(date_str) + "*")
@@ -193,7 +240,7 @@ def api_whatsapp():
     if blockers:
         L.append("\n🔴 *Needs attention (%d):*" % len(blockers))
         for n, dt in blockers:
-            L.append("  • %s — Attendance Pending from %s" % (n, dt))
+            L.append("  • %s — Attendance Pending (%s)" % (n, dt))
     if clear:
         L.append("\n✅ *All clear (%d):* %s" % (len(clear), ", ".join(clear)))
 
@@ -208,14 +255,20 @@ def api_whatsapp():
         parts = []
         mis = d["operations"].get("mis")
         if mis:
-            parts.append("📅 MIS Updated (%s)" % fmt(mis.get("date", "")))
+            parts.append("📅 MIS Completed (%s)" % fmt(mis.get("date", "")))
         att = d["operations"].get("att")
         if att:
-            icon = "✅" if att["status"] == "Regularized till date" else "◱"
-            parts.append("%s ATT %s (%s)" % (icon, att["status"].split()[0], fmt(att.get("date", ""))))
+            icon = "✅" if att["status"] == "Completed" else "◱"
+            parts.append("%s ATT %s (%s)" % (icon, att["status"], fmt(att.get("date", ""))))
         rm = d["operations"].get("rm")
         if rm:
-            parts.append("✅ RM %s" % rm.get("count", ""))
+            parts.append("✅ RM %d" % rm.get("number", 0))
+        nht = d["operations"].get("nhtcal")
+        if nht:
+            parts.append("🗓 NHT %s" % nht["status"])
+        vb = d["operations"].get("vb")
+        if vb:
+            parts.append("⛴ VB %s" % vb["status"])
         if parts:
             L.append("   " + " | ".join(parts))
 

@@ -36,6 +36,13 @@
   .p-no{background:rgba(148,163,184,.18);color:var(--mut)}
   .wa-box{background:var(--in);border:1px solid var(--line);border-radius:10px;padding:12px;white-space:pre-wrap;font-size:13px;line-height:1.5;margin-top:8px}
   .req{color:var(--bad);font-size:11px}
+  .reg-row{margin:8px 0}
+  .reg-row .top{display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px}
+  .track{height:10px;border-radius:6px;background:var(--in);overflow:hidden}
+  .fill{height:100%;border-radius:6px}
+  .fill.mis{background:#38bdf8}
+  .fill.att{background:#34d399}
+  .avg{font-size:13px;color:var(--mut);margin:6px 0 2px}
 </style>
 </head>
 <body>
@@ -63,7 +70,7 @@
     </div>
 
     <div class="sec">
-      <h3>2. Operations</h3>
+      <h3>2. Deliverables</h3>
       <div id="opList"></div>
     </div>
 
@@ -82,11 +89,16 @@
   <div id="waWrap"></div>
 </div>
 
+<div class="card">
+  <h3 style="color:var(--mut);margin:0 0 6px;font-size:15px">MIS &amp; Attendance Regularity (all dates)</h3>
+  <div class="avg" id="avgLine">Loading…</div>
+  <div id="regWrap"></div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
   var CFG = null;
-  var lastReport = null, lastDate = null;
 
   function api(fn, opts) {
     return fetch(fn, opts).then(function (r) { return r.json(); });
@@ -121,21 +133,21 @@
     CFG.operations.forEach(function (op) {
       var d = document.createElement('div');
       d.className = 'op-row';
-      var html = '<div class="lbl">'+esc(op.label)+'</div>';
-      html += '<div class="row2"><div><label>Status</label>' +
-              '<select data-op="'+op.id+'" data-f="status"><option value="">-- select --</option>' +
-              op.statusOptions.map(function(s){ return '<option>'+esc(s)+'</option>'; }).join('') +
-              '</select></div>';
-      if (op.countOptions) {
-        html += '<div><label>Count</label>' +
-                '<select data-op="'+op.id+'" data-f="count"><option value="">--</option>' +
-                op.countOptions.map(function(c){ return '<option>'+esc(c)+'</option>'; }).join('') +
+      var html = '<div class="lbl">' + esc(op.label) + '</div>';
+      if (op.number) {
+        html += '<div class="row2"><div><label>RM count (1–' + op.max + ')</label>' +
+                '<input type="number" min="' + op.min + '" max="' + op.max + '" data-op="' + op.id + '" data-f="number" placeholder="e.g. 7"></div></div>';
+      } else {
+        html += '<div class="row2"><div><label>Status</label>' +
+                '<select data-op="' + op.id + '" data-f="status"><option value="">-- select --</option>' +
+                op.statusOptions.map(function(s){ return '<option>' + esc(s) + '</option>'; }).join('') +
                 '</select></div>';
-      }
-      html += '</div>';
-      if (op.requireDate) {
-        html += '<label>Date <span class="req">(mandatory)</span></label>' +
-                '<input type="date" data-op="'+op.id+'" data-f="date">';
+        if (op.requireDate) {
+          html += '</div><label>Date <span class="req">(mandatory)</span></label>' +
+                  '<input type="date" data-op="' + op.id + '" data-f="date">';
+        } else {
+          html += '</div>';
+        }
       }
       d.innerHTML = html;
       wrap.appendChild(d);
@@ -152,6 +164,7 @@
     addActivityRow();
     buildOps();
     loadDashboard(cfg.today);
+    loadRegularity();
   }).catch(function (err) { document.getElementById('statusBar').textContent = '⚠ ' + err; });
 
   document.getElementById('addAct').addEventListener('click', function(){ addActivityRow(); });
@@ -174,12 +187,15 @@
     var ok = true;
     CFG.operations.forEach(function (op) {
       var o = rawOps[op.id];
-      if (!o || !o.status) return;            // not filled -> skip
+      if (!o) return;
+      if (op.number) {
+        if (o.number) operations[op.id] = { number: o.number };
+        return;
+      }
+      if (!o.status) return;
       if (op.requireDate && !o.date) { alert(op.label + ' needs a date.'); ok = false; return; }
-      if (op.countOptions && !o.count) { alert(op.label + ' needs a count (e.g. 4RM).'); ok = false; return; }
       operations[op.id] = { status: o.status };
       if (op.requireDate) operations[op.id].date = o.date;
-      if (op.countOptions) operations[op.id].count = o.count;
     });
     if (!ok) return;
 
@@ -197,8 +213,9 @@
       .then(function (res) {
         btn.disabled = false; btn.textContent = 'Submit';
         if (res.status === 'error') { alert(res.message); return; }
-        toast(res.updated ? 'Updated '+entry.trainer : 'Saved '+entry.trainer);
+        toast(res.updated ? 'Updated ' + entry.trainer : 'Saved ' + entry.trainer);
         loadDashboard(entry.date);
+        loadRegularity();
       })
       .catch(function (err) { btn.disabled = false; btn.textContent = 'Submit'; alert('Error: ' + err); });
   });
@@ -211,7 +228,6 @@
 
   function loadDashboard(dateStr, cb) {
     api('/api/report?date=' + encodeURIComponent(dateStr)).then(function (res) {
-      lastReport = res; lastDate = res.date;
       renderDashboard(res.rows);
       if (cb) cb();
     }).catch(function (err) { document.getElementById('statusBar').textContent = '⚠ ' + err; if (cb) cb(); });
@@ -229,6 +245,22 @@
     var done = rows.filter(function(r){ return r.submitted; }).length;
     html = '<p style="color:#94a3b8;font-size:13px;margin:0 0 6px">Submitted: '+done+'/'+rows.length+'</p>' + html;
     wrap.innerHTML = html;
+  }
+
+  function loadRegularity() {
+    api('/api/regularity').then(function (res) {
+      document.getElementById('avgLine').textContent =
+        'Overall: MIS ' + res.avgMisPct + '%  •  Attendance ' + res.avgAttPct + '%   (across ' + res.totalDays + ' trainer-days)';
+      var html = '';
+      res.rows.forEach(function (r) {
+        if (!r.days) return;
+        html += '<div class="reg-row"><div class="top"><span>' + esc(r.trainer) + '</span>' +
+                '<span>MIS ' + r.misPct + '% / ATT ' + r.attPct + '%</span></div>' +
+                '<div class="track"><div class="fill mis" style="width:' + r.misPct + '%"></div></div>' +
+                '<div class="track" style="margin-top:4px"><div class="fill att" style="width:' + r.attPct + '%"></div></div></div>';
+      });
+      document.getElementById('regWrap').innerHTML = html || '<p style="color:#94a3b8;font-size:13px">No history yet.</p>';
+    }).catch(function () {});
   }
 
   document.getElementById('copyBtn').addEventListener('click', function () {
