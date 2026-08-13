@@ -166,42 +166,79 @@ def api_report():
     return jsonify({"rows": out, "date": date_str, "operations": OPERATIONS})
 
 
+def _month_bounds(ref):
+    """Return (mis_start, mis_end, att_start, att_end) as YYYY-MM-DD strings.
+    MIS window: 1st of current month -> last day of current month.
+    Att window: 20th of previous month -> 20th of current month.
+    """
+    y, m, _ = ref.split("-")
+    y = int(y); m = int(m)
+    # current month: 1st -> last day
+    if m == 12:
+        nxt_y, nxt_m = y + 1, 1
+    else:
+        nxt_y, nxt_m = y, m + 1
+    mis_start = "%04d-%02d-01" % (y, m)
+    mis_end = "%04d-%02d-01" % (nxt_y, nxt_m)  # exclusive bound (day after last)
+    # previous month
+    if m == 1:
+        py, pm = y - 1, 12
+    else:
+        py, pm = y, m - 1
+    att_start = "%04d-%02d-20" % (py, pm)
+    att_end = "%04d-%02d-20" % (y, m)
+    return mis_start, mis_end, att_start, att_end
+
+
 @app.route("/api/regularity")
 def api_regularity():
-    """Per-trainer MIS % and Attendance % across all stored dates."""
+    """Per-trainer MIS % (1st..end of current month) and Attendance % (20th prev month..20th current month)."""
+    ref = request.args.get("ref", today())
+    mis_start, mis_end, att_start, att_end = _month_bounds(ref)
+
+    def days_between(a, b):
+        d1 = datetime.date.fromisoformat(a)
+        d2 = datetime.date.fromisoformat(b)
+        return (d2 - d1).days  # mis window is [start, end_of_month] inclusive -> +1
+
+    mis_window_days = days_between(mis_start, mis_end)  # = days in current month
+    att_window_days = 21  # 20th prev month .. 20th current month inclusive
+
     conn = get_db()
     rows = conn.execute("SELECT trainer, date, operations FROM entries").fetchall()
     conn.close()
-    days = {}            # trainer -> set of dates they appear on
-    mis_done = {}        # trainer -> count of days with MIS Completed
-    att_done = {}        # trainer -> count of days with Attendance Completed
+
+    mis_done = {}   # trainer -> days in MIS window with MIS Completed
+    att_done = {}   # trainer -> days in ATT window with Attendance Completed
     for r in rows:
         t = r["trainer"]
-        days.setdefault(t, set()).add(r["date"])
         ops = json.loads(r["operations"])
-        if ops.get("mis", {}).get("status") == "Completed":
+        if mis_start <= r["date"] < mis_end and ops.get("mis", {}).get("status") == "Completed":
             mis_done[t] = mis_done.get(t, 0) + 1
-        if ops.get("att", {}).get("status") == "Completed":
+        if att_start <= r["date"] <= att_end and ops.get("att", {}).get("status") == "Completed":
             att_done[t] = att_done.get(t, 0) + 1
+
     out = []
-    tot_mis = tot_att = tot_days = 0
+    tot_mis = tot_att = 0
     for t in TRAINERS:
-        d = len(days.get(t, set()))
         m = mis_done.get(t, 0)
         a = att_done.get(t, 0)
         out.append({
             "trainer": t,
-            "days": d,
-            "misPct": round(100 * m / d) if d else 0,
-            "attPct": round(100 * a / d) if d else 0,
-            "misDone": m, "attDone": a
+            "misPct": round(100 * m / mis_window_days) if mis_window_days else 0,
+            "attPct": round(100 * a / att_window_days) if att_window_days else 0,
+            "misDone": m, "attDone": a,
+            "misTotal": mis_window_days, "attTotal": att_window_days
         })
-        tot_mis += m; tot_att += a; tot_days += d
+        tot_mis += m; tot_att += a
     return jsonify({
         "rows": out,
-        "avgMisPct": round(100 * tot_mis / tot_days) if tot_days else 0,
-        "avgAttPct": round(100 * tot_att / tot_days) if tot_days else 0,
-        "totalDays": tot_days
+        "avgMisPct": round(100 * tot_mis / (mis_window_days * len(TRAINERS))) if mis_window_days else 0,
+        "avgAttPct": round(100 * tot_att / (att_window_days * len(TRAINERS))) if att_window_days else 0,
+        "misWindow": "%s to %s" % (mis_start, datetime.date.fromisoformat(mis_end) - datetime.timedelta(days=1)),
+        "attWindow": "%s to %s" % (att_start, att_end),
+        "misWindowDays": mis_window_days,
+        "attWindowDays": att_window_days
     })
 
 

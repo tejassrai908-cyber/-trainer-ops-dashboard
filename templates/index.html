@@ -249,13 +249,14 @@
 
   function loadRegularity() {
     api('/api/regularity').then(function (res) {
-      document.getElementById('avgLine').textContent =
-        'Overall: MIS ' + res.avgMisPct + '%  •  Attendance ' + res.avgAttPct + '%   (across ' + res.totalDays + ' trainer-days)';
+      document.getElementById('avgLine').innerHTML =
+        'MIS window: ' + esc(res.misWindow) + ' (' + res.misWindowDays + ' days)<br>' +
+        'Att window: ' + esc(res.attWindow) + ' (' + res.attWindowDays + ' days)<br>' +
+        '<b>Overall: MIS ' + res.avgMisPct + '%  •  Attendance ' + res.avgAttPct + '%</b>';
       var html = '';
       res.rows.forEach(function (r) {
-        if (!r.days) return;
         html += '<div class="reg-row"><div class="top"><span>' + esc(r.trainer) + '</span>' +
-                '<span>MIS ' + r.misPct + '% / ATT ' + r.attPct + '%</span></div>' +
+                '<span>MIS ' + r.misPct + '% (' + r.misDone + '/' + r.misTotal + ') / ATT ' + r.attPct + '% (' + r.attDone + '/' + r.attTotal + ')</span></div>' +
                 '<div class="track"><div class="fill mis" style="width:' + r.misPct + '%"></div></div>' +
                 '<div class="track" style="margin-top:4px"><div class="fill att" style="width:' + r.attPct + '%"></div></div></div>';
       });
