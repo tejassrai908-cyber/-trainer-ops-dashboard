@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Trainer Ops Dashboard</title>
+<title>Trainer - Day Activity</title>
 <style>
   :root{ --bg:#0f172a; --card:#1e293b; --line:#334155; --in:#273449; --txt:#e2e8f0; --mut:#94a3b8; --acc:#38bdf8; --ok:#34d399; --bad:#f87171; }
   *{box-sizing:border-box}
@@ -35,12 +35,13 @@
   .p-yes{background:rgba(52,211,153,.16);color:var(--ok)}
   .p-no{background:rgba(148,163,184,.18);color:var(--mut)}
   .wa-box{background:var(--in);border:1px solid var(--line);border-radius:10px;padding:12px;white-space:pre-wrap;font-size:13px;line-height:1.5;margin-top:8px}
+  .req{color:var(--bad);font-size:11px}
 </style>
 </head>
 <body>
 
 <div class="card">
-  <h2>Trainer Ops Dashboard</h2>
+  <h2>Trainer - Day Activity</h2>
   <div class="bar" id="statusBar">Loading…</div>
 
   <form id="form">
@@ -56,13 +57,13 @@
     </div>
 
     <div class="sec">
-      <h3>1. Trainer Activity Update</h3>
+      <h3>1. Trainer Day Activity</h3>
       <div id="actList"></div>
       <button type="button" class="sm" id="addAct">+ Add activity</button>
     </div>
 
     <div class="sec">
-      <h3>2. Operations: status, checks &amp; readiness</h3>
+      <h3>2. Operations</h3>
       <div id="opList"></div>
     </div>
 
@@ -91,7 +92,7 @@
     return fetch(fn, opts).then(function (r) { return r.json(); });
   }
   function toast(m) { var t = document.getElementById('toast'); t.textContent = m; t.className = 'toast show'; setTimeout(function(){ t.className='toast'; }, 2500); }
-  function esc(s){ return (s||'').toString().replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  function esc(s){ return (s||'').toString().replace(/[&<>\"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c]; }); }
   function opt(list, sel){ return list.map(function(v){ return '<option'+(v===sel?' selected':'')+'>'+esc(v)+'</option>'; }).join(''); }
 
   function copyText(t) {
@@ -120,14 +121,23 @@
     CFG.operations.forEach(function (op) {
       var d = document.createElement('div');
       d.className = 'op-row';
-      d.innerHTML =
-        '<div class="lbl">'+esc(op.label)+'</div>' +
-        '<div class="row2">' +
-          '<div><label>Status</label><select data-op="'+op.id+'" data-f="status"><option>NA</option>'+opt(CFG.opStatus.slice(0,3),'NA')+'</select></div>' +
-          '<div><label>Readiness</label><select data-op="'+op.id+'" data-f="readiness"><option>NA</option>'+opt(CFG.opReadiness.slice(0,2),'NA')+'</select></div>' +
-        '</div>' +
-        '<label>Checks / Count</label><input data-op="'+op.id+'" data-f="checks" placeholder="e.g. 4/4 or done">' +
-        '<label>Comment</label><textarea data-op="'+op.id+'" data-f="comment" placeholder="optional note"></textarea>';
+      var html = '<div class="lbl">'+esc(op.label)+'</div>';
+      html += '<div class="row2"><div><label>Status</label>' +
+              '<select data-op="'+op.id+'" data-f="status"><option value="">-- select --</option>' +
+              op.statusOptions.map(function(s){ return '<option>'+esc(s)+'</option>'; }).join('') +
+              '</select></div>';
+      if (op.countOptions) {
+        html += '<div><label>Count</label>' +
+                '<select data-op="'+op.id+'" data-f="count"><option value="">--</option>' +
+                op.countOptions.map(function(c){ return '<option>'+esc(c)+'</option>'; }).join('') +
+                '</select></div>';
+      }
+      html += '</div>';
+      if (op.requireDate) {
+        html += '<label>Date <span class="req">(mandatory)</span></label>' +
+                '<input type="date" data-op="'+op.id+'" data-f="date">';
+      }
+      d.innerHTML = html;
       wrap.appendChild(d);
     });
   }
@@ -154,12 +164,25 @@
       var c = row.querySelector('.act-com').value;
       if (a) activities.push({ activity: a, comment: c });
     });
-    var operations = {};
+    var rawOps = {};
     document.querySelectorAll('#opList [data-op]').forEach(function (el) {
       var id = el.getAttribute('data-op'), f = el.getAttribute('data-f');
-      operations[id] = operations[id] || {};
-      operations[id][f] = el.value;
+      rawOps[id] = rawOps[id] || {};
+      rawOps[id][f] = el.value;
     });
+    var operations = {};
+    var ok = true;
+    CFG.operations.forEach(function (op) {
+      var o = rawOps[op.id];
+      if (!o || !o.status) return;            // not filled -> skip
+      if (op.requireDate && !o.date) { alert(op.label + ' needs a date.'); ok = false; return; }
+      if (op.countOptions && !o.count) { alert(op.label + ' needs a count (e.g. 4RM).'); ok = false; return; }
+      operations[op.id] = { status: o.status };
+      if (op.requireDate) operations[op.id].date = o.date;
+      if (op.countOptions) operations[op.id].count = o.count;
+    });
+    if (!ok) return;
+
     var entry = {
       date: document.getElementById('date').value,
       trainer: document.getElementById('trainer').value,

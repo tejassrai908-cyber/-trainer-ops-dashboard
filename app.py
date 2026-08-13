@@ -1,6 +1,12 @@
 #!/usr/bin/env python3
-"""Trainer Ops Dashboard - deployable (Render / any host).
-Data persists in SQLite (trainerops.db) so it survives restarts.
+"""Trainer - Day Activity dashboard (deployable on Render / any host).
+
+Operations model (per trainer, per day):
+  - MIS Update            : status "Updated" + mandatory date
+  - Attendance Regular.   : status (Regularized till date / Pending from date) + mandatory date
+  - Help Desk RM Support  : status "I Will Support at least" + count (2RM/4RM/6RM/10RM)
+
+Data persists in SQLite (trainerops.db) within the running instance.
 Run locally:  python app.py
 Run on host:  gunicorn -b 0.0.0.0:$PORT app:app
 """
@@ -24,14 +30,12 @@ ACTIVITY_OPTIONS = [
     "Attendance Regularization", "Help Desk RM Support", "Weekly Off", "Leave", "Other"
 ]
 OPERATIONS = [
-    {"id": "mis",    "label": "MIS Update"},
-    {"id": "nhtcal", "label": "NHT & Calender Block"},
-    {"id": "att",    "label": "Attendance Regularization"},
-    {"id": "vb",     "label": "Visit Barge"},
-    {"id": "rm",     "label": "Help Desk RM Support"}
+    {"id": "mis", "label": "MIS Update", "statusOptions": ["Updated"], "requireDate": True},
+    {"id": "att", "label": "Attendance Regularization",
+     "statusOptions": ["Regularized till date", "Pending from date"], "requireDate": True},
+    {"id": "rm", "label": "Help Desk RM Support",
+     "statusOptions": ["I Will Support at least"], "countOptions": ["2RM", "4RM", "6RM", "10RM"]},
 ]
-OP_STATUS = ["Done", "Pending", "Blocked", "NA"]
-OP_READINESS = ["Ready", "Not Ready", "NA"]
 
 
 def get_db():
@@ -44,11 +48,7 @@ def init_db():
     conn = get_db()
     conn.execute("""CREATE TABLE IF NOT EXISTS entries (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        timestamp TEXT,
-        date TEXT,
-        trainer TEXT,
-        activities TEXT,
-        operations TEXT
+        timestamp TEXT, date TEXT, trainer TEXT, activities TEXT, operations TEXT
     )""")
     conn.commit()
     conn.close()
@@ -59,6 +59,15 @@ init_db()
 
 def today():
     return datetime.date.today().isoformat()
+
+
+def fmt(d):
+    try:
+        y, m, day = d.split("-")
+        return "%s %s %s" % (day, ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                                   "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][int(m) - 1], y)
+    except Exception:
+        return d
 
 
 @app.route("/")
@@ -72,8 +81,6 @@ def api_config():
         "trainers": TRAINERS,
         "activities": ACTIVITY_OPTIONS,
         "operations": OPERATIONS,
-        "opStatus": OP_STATUS,
-        "opReadiness": OP_READINESS,
         "today": today()
     })
 
@@ -88,18 +95,31 @@ def api_submit():
 
     activities = [{"activity": a["activity"], "comment": str(a.get("comment", ""))[:300]}
                   for a in e.get("activities", []) if a and a.get("activity")]
+
     ops = {}
     for op in OPERATIONS:
-        o = (e.get("operations") or {}).get(op["id"])
-        if o:
-            ops[op["id"]] = {
-                "status": o.get("status", "NA"),
-                "checks": str(o.get("checks", ""))[:100],
-                "readiness": o.get("readiness", "NA"),
-                "comment": str(o.get("comment", ""))[:300]
-            }
+        o = (e.get("operations") or {}).get(op["id"]) or {}
+        status = (o.get("status") or "").strip()
+        if not status:
+            continue
+        entry = {"status": status}
+        if op.get("requireDate"):
+            d = (o.get("date") or "").strip()
+            if not d:
+                return jsonify({"status": "error",
+                                "message": op["label"] + " needs a date"}), 400
+            entry["date"] = d
+        if op.get("countOptions"):
+            c = (o.get("count") or "").strip()
+            if not c:
+                return jsonify({"status": "error",
+                                "message": op["label"] + " needs a count (e.g. 4RM)"}), 400
+            entry["count"] = c
+        ops[op["id"]] = entry
+
     conn = get_db()
-    cur = conn.execute("SELECT id FROM entries WHERE date=? AND trainer=?", (e["date"], e["trainer"]))
+    cur = conn.execute("SELECT id FROM entries WHERE date=? AND trainer=?",
+                       (e["date"], e["trainer"]))
     row = cur.fetchone()
     payload = (datetime.datetime.now().isoformat(timespec="seconds"), e["date"], e["trainer"],
                json.dumps(activities, ensure_ascii=False), json.dumps(ops, ensure_ascii=False))
@@ -108,7 +128,8 @@ def api_submit():
                      payload + (row["id"],))
         updated = True
     else:
-        conn.execute("INSERT INTO entries (timestamp, date, trainer, activities, operations) VALUES (?,?,?,?,?)", payload)
+        conn.execute("INSERT INTO entries (timestamp,date,trainer,activities,operations) VALUES (?,?,?,?,?)",
+                     payload)
         updated = False
     conn.commit()
     conn.close()
@@ -141,58 +162,76 @@ def api_whatsapp():
     rows = conn.execute("SELECT * FROM entries WHERE date=?", (date_str,)).fetchall()
     conn.close()
     by_trainer = {r["trainer"]: r for r in rows}
-    submitted = [t for t in TRAINERS if t in by_trainer]
-    L = []
-    L.append("\U0001F4CB *Trainer Ops Update \u2014 " + fmt(date_str) + "*")
-    L.append("\u2501" * 20)
-    L.append("Submitted: %d/%d" % (len(submitted), len(TRAINERS)))
+
+    data = []
     for t in TRAINERS:
         r = by_trainer.get(t)
-        L.append("")
-        L.append("\U0001F464 *" + t + "*")
-        if not r:
-            L.append("\u26AA Yet to update")
-            L.append("\u2501" * 20)
+        data.append({
+            "trainer": t,
+            "submitted": r is not None,
+            "activities": json.loads(r["activities"]) if r else [],
+            "operations": json.loads(r["operations"]) if r else {}
+        })
+
+    submitted = [d for d in data if d["submitted"]]
+
+    # Classification for the alert block
+    blockers = []  # attendance pending from date
+    for d in data:
+        att = d["operations"].get("att")
+        if att and att.get("status") == "Pending from date":
+            blockers.append((d["trainer"], fmt(att.get("date", ""))))
+    clear = [d["trainer"] for d in data
+             if d["submitted"]
+             and not (d["operations"].get("att", {}).get("status") == "Pending from date")]
+
+    L = []
+    L.append("📋 *Trainer - Day Activity — " + fmt(date_str) + "*")
+    L.append("━━━━━━━━━━━━━━━━━━━━")
+    L.append("📊 Submitted: %d/%d" % (len(submitted), len(TRAINERS)))
+
+    if blockers:
+        L.append("\n🔴 *Needs attention (%d):*" % len(blockers))
+        for n, dt in blockers:
+            L.append("  • %s — Attendance Pending from %s" % (n, dt))
+    if clear:
+        L.append("\n✅ *All clear (%d):* %s" % (len(clear), ", ".join(clear)))
+
+    L.append("\n━━━━━━━━━━━━━━━━━━━━")
+    L.append("*Per trainer:*")
+    for d in data:
+        if not d["submitted"]:
+            L.append("⚪ *%s* — Yet to update" % d["trainer"])
             continue
-        acts = json.loads(r["activities"])
-        ops = json.loads(r["operations"])
-        if acts:
-            L.append("\U0001F4CC *Activity:*")
-            for a in acts:
-                L.append('  \u2022 ' + a["activity"] + (' \u2014 "' + a["comment"] + '"' if a.get("comment") else ""))
-        if ops:
-            L.append("\U0001F527 *Operations:*")
-            for op in OPERATIONS:
-                o = ops.get(op["id"])
-                if not o:
-                    continue
-                s_icon = {"Done": "\u2705", "Pending": "\u25F1", "Blocked": "\U0001F534", "NA": "\u2796"}.get(o["status"], "\u2796")
-                r_icon = {"Ready": "\U0001F7E2", "Not Ready": "\U0001F534", "NA": "\u26AA"}.get(o["readiness"], "\u26AA")
-                L.append("  " + s_icon + " " + op["label"] +
-                         (" [" + o["checks"] + "]" if o.get("checks") else "") +
-                         " " + r_icon + " " + o["readiness"] +
-                         ((" \u2014 " + o["comment"]) if o.get("comment") else ""))
-        L.append("\u2501" * 20)
+        acts = ", ".join(a["activity"] for a in d["activities"]) or "—"
+        L.append("✅ *%s* — %s" % (d["trainer"], acts))
+        parts = []
+        mis = d["operations"].get("mis")
+        if mis:
+            parts.append("📅 MIS Updated (%s)" % fmt(mis.get("date", "")))
+        att = d["operations"].get("att")
+        if att:
+            icon = "✅" if att["status"] == "Regularized till date" else "◱"
+            parts.append("%s ATT %s (%s)" % (icon, att["status"].split()[0], fmt(att.get("date", ""))))
+        rm = d["operations"].get("rm")
+        if rm:
+            parts.append("✅ RM %s" % rm.get("count", ""))
+        if parts:
+            L.append("   " + " | ".join(parts))
+
     return jsonify({"text": "\n".join(L)})
-
-
-def fmt(d):
-    try:
-        y, m, day = d.split("-")
-        return "%s %s %s" % (day, ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][int(m)-1], y)
-    except Exception:
-        return d
 
 
 if __name__ == "__main__":
     import socket
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     try:
-        s.connect(("8.8.8.8", 80)); ip = s.getsockname()[0]
+        s.connect(("8.8.8.8", 80))
+        ip = s.getsockname()[0]
     except Exception:
         ip = "localhost"
     finally:
         s.close()
     port = int(os.environ.get("PORT", 5000))
-    print("Trainer Ops Dashboard running at http://%s:%d" % (ip, port))
+    print("Trainer - Day Activity running at http://%s:%d" % (ip, port))
     app.run(host="0.0.0.0", port=port, debug=False)
