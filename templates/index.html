@@ -180,8 +180,8 @@
       }
       d.innerHTML = html;
       wrap.appendChild(d);
-      if (!op.number && !op.requireDate) {
-        // wire segmented buttons
+      if (!op.number) {
+        // wire segmented buttons (all status ops, incl. date-requiring MIS/Attendance)
         var seg = d.querySelector('.seg');
         var hidden = d.querySelector('input[data-f="status"]');
         seg.querySelectorAll('.seg-btn').forEach(function (b) {
