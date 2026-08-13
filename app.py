@@ -41,6 +41,8 @@ OPERATIONS = [
      "statusOptions": ["Checked", "Aware", "Need to check"]},
     {"id": "vb", "label": "Visit Barge",
      "statusOptions": ["Following the updated process", "Need to check for new process"]},
+    {"id": "omni", "label": "Omni Card | Darwin Bills Submission",
+     "statusOptions": ["Yes", "No"], "highlight": "Submit every Monday"},
 ]
 
 
@@ -283,31 +285,29 @@ def api_whatsapp():
 
     L.append("\n━━━━━━━━━━━━━━━━━━━━")
     L.append("*Per trainer:*")
+
+    num = 0
     for d in data:
         if not d["submitted"]:
-            L.append("⚪ *%s* — Yet to update" % d["trainer"])
+            num += 1
+            L.append("%d) *%s* - Yet to update" % (num, d["trainer"]))
             continue
-        acts = ", ".join(a["activity"] for a in d["activities"]) or "—"
-        L.append("✅ *%s* — %s" % (d["trainer"], acts))
-        parts = []
-        mis = d["operations"].get("mis")
-        if mis:
-            parts.append("📅 MIS Completed (%s)" % fmt(mis.get("date", "")))
-        att = d["operations"].get("att")
-        if att:
-            icon = "✅" if att["status"] == "Completed" else "◱"
-            parts.append("%s ATT %s (%s)" % (icon, att["status"], fmt(att.get("date", ""))))
-        rm = d["operations"].get("rm")
-        if rm:
-            parts.append("✅ RM %d" % rm.get("number", 0))
-        nht = d["operations"].get("nhtcal")
-        if nht:
-            parts.append("🗓 NHT %s" % nht["status"])
-        vb = d["operations"].get("vb")
-        if vb:
-            parts.append("⛴ VB %s" % vb["status"])
-        if parts:
-            L.append("   " + " | ".join(parts))
+        num += 1
+        acts = ", ".join(a["activity"] for a in d["activities"]) or "-"
+        L.append("%d) *%s* - %s" % (num, d["trainer"], acts))
+        ops = d["operations"]
+        mis = ops.get("mis")
+        L.append("   MIS Update - %s" % (fmt(mis["date"]) if mis else "-"))
+        att = ops.get("att")
+        L.append("   Attendance Regularization - %s" % (("Yes" if att and att["status"] == "Completed" else "No") if att else "-"))
+        rm = ops.get("rm")
+        L.append("   Help Desk Support - %s" % ("%dRM" % rm["number"] if rm else "-"))
+        nht = ops.get("nhtcal")
+        L.append("   NHT & Calender Block - %s" % (nht["status"] if nht else "-"))
+        vb = ops.get("vb")
+        L.append("   Visit Barge - %s" % (vb["status"] if vb else "-"))
+        omni = ops.get("omni")
+        L.append("   Omni Card | Darwin Bills Submission - %s" % (omni["status"] if omni else "-"))
 
     return jsonify({"text": "\n".join(L)})
 

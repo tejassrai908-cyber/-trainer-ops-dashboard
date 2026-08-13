@@ -5,51 +5,78 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Trainer - Day Activity</title>
 <style>
-  :root{ --bg:#0f172a; --card:#1e293b; --line:#334155; --in:#273449; --txt:#e2e8f0; --mut:#94a3b8; --acc:#38bdf8; --ok:#34d399; --bad:#f87171; }
+  :root{
+    --bg:#0b1220; --bg2:#0f1a30; --card:#15233f; --line:#2a3a5c; --in:#1b2c4d;
+    --txt:#eaf1ff; --mut:#9fb2d4; --acc:#5b9dff; --acc2:#7c5cff; --ok:#34d399; --warn:#fbbf24; --bad:#f87171;
+    --r:16px;
+  }
   *{box-sizing:border-box}
-  body{font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--txt);padding:14px;margin:0}
-  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;max-width:640px;margin:0 auto 14px}
-  h2{margin:0;font-size:18px}
-  .sec{margin-top:16px;padding-top:14px;border-top:1px solid var(--line)}
-  .sec h3{margin:0 0 10px;font-size:15px;color:var(--acc)}
-  label{display:block;font-size:12px;color:var(--mut);margin:10px 0 4px}
-  input,select,textarea{width:100%;padding:11px;border-radius:9px;border:1px solid var(--line);background:var(--in);color:var(--txt);font-size:15px;font-family:inherit}
+  body{font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:radial-gradient(1200px 600px at 50% -10%,#15294e 0%,var(--bg) 55%);color:var(--txt);padding:16px;margin:0;min-height:100vh}
+  .wrap{max-width:660px;margin:0 auto}
+  .card{background:linear-gradient(180deg,var(--card),#13203a);border:1px solid var(--line);border-radius:var(--r);padding:18px;margin:0 auto 16px;box-shadow:0 12px 30px rgba(0,0,0,.35)}
+  .head{display:flex;align-items:center;gap:10px;margin-bottom:4px}
+  .logo{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--acc),var(--acc2));display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;color:#04122b}
+  h2{margin:0;font-size:19px;letter-spacing:.2px}
+  .sub{color:var(--mut);font-size:12px;margin:2px 0 0 44px}
+  .bar{margin-top:12px;padding:10px 14px;border-radius:12px;font-size:13px;font-weight:600;text-align:center;background:rgba(52,211,153,.14);color:var(--ok);border:1px solid rgba(52,211,153,.25)}
+  .bar.warn{background:rgba(251,191,36,.14);color:var(--warn);border-color:rgba(251,191,36,.25)}
+  .sec{margin-top:18px;padding-top:14px;border-top:1px solid var(--line)}
+  .sec h3{margin:0 0 12px;font-size:15px;color:var(--acc);display:flex;align-items:center;gap:8px}
+  .sec h3 .n{background:var(--acc);color:#04122b;border-radius:8px;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:800}
+  label{display:block;font-size:12px;color:var(--mut);margin:12px 0 5px}
+  input,select,textarea{width:100%;padding:12px;border-radius:11px;border:1px solid var(--line);background:var(--in);color:var(--txt);font-size:15px;font-family:inherit;outline:none;transition:.15s}
+  input:focus,select:focus,textarea:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(91,157,255,.18)}
   textarea{resize:vertical;min-height:46px}
-  button{width:100%;margin-top:12px;padding:13px;border:0;border-radius:11px;background:var(--acc);color:#04293a;font-size:15px;font-weight:700;cursor:pointer}
+  button{width:100%;margin-top:14px;padding:14px;border:0;border-radius:13px;background:linear-gradient(135deg,var(--acc),var(--acc2));color:#04122b;font-size:15px;font-weight:800;cursor:pointer;transition:.15s}
+  button:hover{filter:brightness(1.07)}
+  button:active{transform:translateY(1px)}
   button.ghost{background:transparent;border:1px solid var(--line);color:var(--txt);font-weight:600}
-  button.sm{margin-top:8px;padding:9px;font-size:13px;background:var(--in);color:var(--txt)}
-  button.rm{background:transparent;color:var(--bad);border:1px solid var(--line);width:auto;padding:8px 10px;font-size:13px;margin:0}
-  .row2{display:flex;gap:8px}
+  button.sm{margin-top:10px;padding:10px;font-size:13px;background:var(--in);color:var(--txt);border:1px solid var(--line);font-weight:600}
+  button.rm{background:transparent;color:var(--bad);border:1px solid var(--line);width:auto;padding:8px 11px;font-size:13px;margin:0}
+  .row2{display:flex;gap:10px}
   .row2>*{flex:1}
-  .act-row{display:flex;gap:8px;align-items:flex-start;margin-bottom:8px}
+  .act-row{display:flex;gap:8px;align-items:flex-start;margin-bottom:9px}
   .act-row .a{flex:1.2} .act-row .c{flex:1.4}
-  .op-row{margin-bottom:12px;padding:10px;background:var(--in);border-radius:10px}
-  .op-row .lbl{font-weight:700;font-size:14px;margin-bottom:8px}
-  .bar{padding:9px 12px;border-radius:10px;font-size:13px;margin-bottom:10px;text-align:center;font-weight:600;background:rgba(52,211,153,.14);color:var(--ok)}
-  .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--ok);color:#04293a;padding:11px 18px;border-radius:10px;opacity:0;transition:.25s;font-weight:600;z-index:9}
+  .op-row{margin-bottom:14px;padding:14px;background:var(--in);border:1px solid var(--line);border-radius:13px}
+  .op-row .lbl{font-weight:700;font-size:14px;margin-bottom:9px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .hl{font-size:11px;font-weight:700;color:#04122b;background:linear-gradient(135deg,var(--warn),#f59e0b);padding:3px 9px;border-radius:999px;white-space:nowrap}
+  .seg{display:flex;gap:8px;margin-top:6px}
+  .seg button{flex:1;margin:0;padding:10px;font-size:13px;font-weight:700;border:1px solid var(--line);background:var(--card);color:var(--mut);border-radius:10px}
+  .seg button.on{background:linear-gradient(135deg,var(--acc),var(--acc2));color:#04122b;border-color:transparent}
+  .seg button.on.no{background:linear-gradient(135deg,#f87171,#ef4444)}
+  .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ok);color:#04122b;padding:12px 20px;border-radius:12px;opacity:0;transition:.25s;font-weight:700;z-index:9;box-shadow:0 10px 24px rgba(0,0,0,.4)}
   .toast.show{opacity:1}
-  .dash{display:flex;align-items:center;padding:10px;border-bottom:1px solid var(--line);gap:10px}
+  .dash{display:flex;align-items:center;padding:11px 12px;border:1px solid var(--line);border-radius:11px;gap:10px;margin-bottom:8px;background:var(--in)}
   .dash .n{flex:1;font-weight:600;font-size:14px}
-  .dash .a{flex:2;font-size:13px;color:var(--mut)}
-  .pill{display:inline-block;padding:3px 9px;border-radius:999px;font-size:11px;font-weight:700;white-space:nowrap}
+  .dash .a{flex:2;font-size:12px;color:var(--mut);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .pill{display:inline-block;padding:4px 10px;border-radius:999px;font-size:11px;font-weight:700;white-space:nowrap}
   .p-yes{background:rgba(52,211,153,.16);color:var(--ok)}
-  .p-no{background:rgba(148,163,184,.18);color:var(--mut)}
-  .wa-box{background:var(--in);border:1px solid var(--line);border-radius:10px;padding:12px;white-space:pre-wrap;font-size:13px;line-height:1.5;margin-top:8px}
+  .p-no{background:rgba(148,163,184,.16);color:var(--mut)}
+  .wa-box{background:#0a1426;border:1px solid var(--line);border-radius:12px;padding:14px;white-space:pre-wrap;font-size:13px;line-height:1.55;margin-top:10px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
   .req{color:var(--bad);font-size:11px}
-  .reg-row{margin:8px 0}
-  .reg-row .top{display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px}
-  .track{height:10px;border-radius:6px;background:var(--in);overflow:hidden}
-  .fill{height:100%;border-radius:6px}
-  .fill.mis{background:#38bdf8}
-  .fill.att{background:#34d399}
-  .avg{font-size:13px;color:var(--mut);margin:6px 0 2px}
+  .reg-row{margin:10px 0}
+  .reg-row .top{display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px;color:var(--txt)}
+  .reg-row .top b{color:var(--acc)}
+  .track{height:11px;border-radius:7px;background:var(--in);overflow:hidden;border:1px solid var(--line)}
+  .fill{height:100%;border-radius:7px;transition:width .4s}
+  .fill.mis{background:linear-gradient(90deg,#5b9dff,#7c5cff)}
+  .fill.att{background:linear-gradient(90deg,#34d399,#10b981)}
+  .avg{font-size:12px;color:var(--mut);margin:8px 0 4px;line-height:1.6}
+  .avg b{color:var(--txt)}
 </style>
 </head>
 <body>
+<div class="wrap">
 
 <div class="card">
-  <h2>Trainer - Day Activity</h2>
-  <div class="bar" id="statusBar">Loading…</div>
+  <div class="head">
+    <div class="logo">T</div>
+    <div>
+      <h2>Trainer - Day Activity</h2>
+    </div>
+  </div>
+  <div class="sub">Daily activity &amp; deliverables — one tap to WhatsApp</div>
+  <div class="bar" id="statusBar">Connecting…</div>
 
   <form id="form">
     <div class="row2">
@@ -64,13 +91,13 @@
     </div>
 
     <div class="sec">
-      <h3>1. Trainer Day Activity</h3>
+      <h3><span class="n">1</span> Trainer Day Activity</h3>
       <div id="actList"></div>
       <button type="button" class="sm" id="addAct">+ Add activity</button>
     </div>
 
     <div class="sec">
-      <h3>2. Deliverables</h3>
+      <h3><span class="n">2</span> Deliverables</h3>
       <div id="opList"></div>
     </div>
 
@@ -79,18 +106,18 @@
 </div>
 
 <div class="card">
-  <h3 style="color:var(--mut);margin:0 0 4px;font-size:15px">All 12 Trainers — Dashboard</h3>
+  <h3 style="color:var(--acc);margin:0 0 4px;font-size:15px">All 12 Trainers — Dashboard</h3>
   <div class="row2" style="margin-top:10px">
     <input type="date" id="viewDate">
     <button type="button" class="ghost" id="loadBtn" style="margin-top:0">Load day</button>
   </div>
-  <div id="dashWrap" style="margin-top:10px"></div>
+  <div id="dashWrap" style="margin-top:12px"></div>
   <button type="button" class="ghost" id="copyBtn">📋 Copy WhatsApp update</button>
   <div id="waWrap"></div>
 </div>
 
 <div class="card">
-  <h3 style="color:var(--mut);margin:0 0 6px;font-size:15px">MIS &amp; Attendance Regularity (all dates)</h3>
+  <h3 style="color:var(--acc);margin:0 0 6px;font-size:15px">MIS &amp; Attendance Regularity</h3>
   <div class="avg" id="avgLine">Loading…</div>
   <div id="regWrap"></div>
 </div>
@@ -104,7 +131,7 @@
     return fetch(fn, opts).then(function (r) { return r.json(); });
   }
   function toast(m) { var t = document.getElementById('toast'); t.textContent = m; t.className = 'toast show'; setTimeout(function(){ t.className='toast'; }, 2500); }
-  function esc(s){ return (s||'').toString().replace(/[&<>\"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c]; }); }
+  function esc(s){ return (s||'').toString().replace(/[&<>\"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
   function opt(list, sel){ return list.map(function(v){ return '<option'+(v===sel?' selected':'')+'>'+esc(v)+'</option>'; }).join(''); }
 
   function copyText(t) {
@@ -133,30 +160,45 @@
     CFG.operations.forEach(function (op) {
       var d = document.createElement('div');
       d.className = 'op-row';
-      var html = '<div class="lbl">' + esc(op.label) + '</div>';
+      var html = '<div class="lbl"><span>' + esc(op.label) + '</span>' +
+                 (op.highlight ? '<span class="hl">📌 ' + esc(op.highlight) + '</span>' : '') + '</div>';
       if (op.number) {
-        html += '<div class="row2"><div><label>RM count (1–' + op.max + ')</label>' +
-                '<input type="number" min="' + op.min + '" max="' + op.max + '" data-op="' + op.id + '" data-f="number" placeholder="e.g. 7"></div></div>';
+        html += '<label>RM count (1–' + op.max + ')</label>' +
+                '<input type="number" min="' + op.min + '" max="' + op.max + '" data-op="' + op.id + '" data-f="number" placeholder="e.g. 7">';
       } else {
-        html += '<div class="row2"><div><label>Status</label>' +
-                '<select data-op="' + op.id + '" data-f="status"><option value="">-- select --</option>' +
-                op.statusOptions.map(function(s){ return '<option>' + esc(s) + '</option>'; }).join('') +
-                '</select></div>';
+        // segmented toggle buttons for status
+        html += '<div class="seg" data-op="' + op.id + '">';
+        op.statusOptions.forEach(function (s, i) {
+          var noCls = (op.id === 'omni' && s === 'No') ? ' no' : '';
+          html += '<button type="button" class="seg-btn' + noCls + '" data-val="'+esc(s)+'">'+esc(s)+'</button>';
+        });
+        html += '</div><input type="hidden" data-op="' + op.id + '" data-f="status" value="">';
         if (op.requireDate) {
-          html += '</div><label>Date <span class="req">(mandatory)</span></label>' +
+          html += '<label>Date <span class="req">(mandatory)</span></label>' +
                   '<input type="date" data-op="' + op.id + '" data-f="date">';
-        } else {
-          html += '</div>';
         }
       }
       d.innerHTML = html;
       wrap.appendChild(d);
+      if (!op.number && !op.requireDate) {
+        // wire segmented buttons
+        var seg = d.querySelector('.seg');
+        var hidden = d.querySelector('input[data-f="status"]');
+        seg.querySelectorAll('.seg-btn').forEach(function (b) {
+          b.addEventListener('click', function () {
+            seg.querySelectorAll('.seg-btn').forEach(function (x){ x.classList.remove('on'); });
+            b.classList.add('on');
+            hidden.value = b.getAttribute('data-val');
+          });
+        });
+      }
     });
   }
 
   api('/api/config').then(function (cfg) {
     CFG = cfg;
-    document.getElementById('statusBar').textContent = 'Connected ✓';
+    var sb = document.getElementById('statusBar');
+    sb.textContent = 'Connected ✓'; sb.classList.remove('warn');
     document.getElementById('date').value = cfg.today;
     document.getElementById('viewDate').value = cfg.today;
     var t = document.getElementById('trainer');
@@ -165,7 +207,7 @@
     buildOps();
     loadDashboard(cfg.today);
     loadRegularity();
-  }).catch(function (err) { document.getElementById('statusBar').textContent = '⚠ ' + err; });
+  }).catch(function (err) { var sb=document.getElementById('statusBar'); sb.textContent = '⚠ ' + err; sb.classList.add('warn'); });
 
   document.getElementById('addAct').addEventListener('click', function(){ addActivityRow(); });
 
@@ -230,12 +272,12 @@
     api('/api/report?date=' + encodeURIComponent(dateStr)).then(function (res) {
       renderDashboard(res.rows);
       if (cb) cb();
-    }).catch(function (err) { document.getElementById('statusBar').textContent = '⚠ ' + err; if (cb) cb(); });
+    }).catch(function (err) { var sb=document.getElementById('statusBar'); sb.textContent = '⚠ ' + err; sb.classList.add('warn'); if (cb) cb(); });
   }
 
   function renderDashboard(rows) {
     var wrap = document.getElementById('dashWrap');
-    if (!rows || !rows.length) { wrap.innerHTML = '<p style="color:#94a3b8;font-size:13px">No data.</p>'; return; }
+    if (!rows || !rows.length) { wrap.innerHTML = '<p style="color:#9fb2d4;font-size:13px">No data.</p>'; return; }
     var html = '';
     rows.forEach(function (r) {
       var act = r.submitted ? r.activities.map(function (a){ return esc(a.activity); }).join(', ') : 'Yet to update';
@@ -243,24 +285,24 @@
       html += '<div class="dash"><div class="n">'+esc(r.trainer)+'</div><div class="a">'+act+'</div>'+pill+'</div>';
     });
     var done = rows.filter(function(r){ return r.submitted; }).length;
-    html = '<p style="color:#94a3b8;font-size:13px;margin:0 0 6px">Submitted: '+done+'/'+rows.length+'</p>' + html;
+    html = '<p style="color:#9fb2d4;font-size:13px;margin:0 0 8px">Submitted: '+done+'/'+rows.length+'</p>' + html;
     wrap.innerHTML = html;
   }
 
   function loadRegularity() {
     api('/api/regularity').then(function (res) {
       document.getElementById('avgLine').innerHTML =
-        'MIS window: ' + esc(res.misWindow) + ' (' + res.misWindowDays + ' days)<br>' +
-        'Att window: ' + esc(res.attWindow) + ' (' + res.attWindowDays + ' days)<br>' +
-        '<b>Overall: MIS ' + res.avgMisPct + '%  •  Attendance ' + res.avgAttPct + '%</b>';
+        '<b>MIS window:</b> ' + esc(res.misWindow) + ' (' + res.misWindowDays + ' days)<br>' +
+        '<b>Att window:</b> ' + esc(res.attWindow) + ' (' + res.attWindowDays + ' days)<br>' +
+        '<b>Overall:</b> MIS ' + res.avgMisPct + '% &nbsp;•&nbsp; Attendance ' + res.avgAttPct + '%';
       var html = '';
       res.rows.forEach(function (r) {
         html += '<div class="reg-row"><div class="top"><span>' + esc(r.trainer) + '</span>' +
-                '<span>MIS ' + r.misPct + '% (' + r.misDone + '/' + r.misTotal + ') / ATT ' + r.attPct + '% (' + r.attDone + '/' + r.attTotal + ')</span></div>' +
+                '<span><b>MIS</b> ' + r.misPct + '% (' + r.misDone + '/' + r.misTotal + ') &nbsp; <b>ATT</b> ' + r.attPct + '% (' + r.attDone + '/' + r.attTotal + ')</span></div>' +
                 '<div class="track"><div class="fill mis" style="width:' + r.misPct + '%"></div></div>' +
-                '<div class="track" style="margin-top:4px"><div class="fill att" style="width:' + r.attPct + '%"></div></div></div>';
+                '<div class="track" style="margin-top:5px"><div class="fill att" style="width:' + r.attPct + '%"></div></div></div>';
       });
-      document.getElementById('regWrap').innerHTML = html || '<p style="color:#94a3b8;font-size:13px">No history yet.</p>';
+      document.getElementById('regWrap').innerHTML = html || '<p style="color:#9fb2d4;font-size:13px">No history yet.</p>';
     }).catch(function () {});
   }
 
