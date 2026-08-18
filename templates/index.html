@@ -86,6 +86,18 @@
   <div class="sub">Daily activity &amp; deliverables — one tap to WhatsApp</div>
   <div class="bar" id="statusBar">Connecting…</div>
 
+  <div class="card install-banner" id="installBanner" style="display:none;background:linear-gradient(135deg,#1b3a6b,#2a2350);border-color:#3a5a9a">
+    <div style="display:flex;align-items:center;gap:12px">
+      <div class="logo">T</div>
+      <div style="flex:1">
+        <div style="font-weight:800;font-size:15px">Install Trainer Ops</div>
+        <div style="color:var(--mut);font-size:12px">Tap Install for an app icon on your home screen (no browser bar)</div>
+      </div>
+      <button type="button" id="installBtn" style="width:auto;margin:0;padding:10px 16px">Install</button>
+      <button type="button" id="installDismiss" style="width:auto;margin:0;padding:10px 12px;background:transparent;border:1px solid var(--line);color:var(--mut)">✕</button>
+    </div>
+  </div>
+
   <form id="form">
     <div class="row2">
       <div>
@@ -330,6 +342,39 @@
       navigator.serviceWorker.register('/sw.js').catch(function () {});
     });
   }
+
+  // Capture the browser's native install prompt and show our own Install button.
+  var deferredPrompt = null;
+  var installBanner = document.getElementById('installBanner');
+  var installBtn = document.getElementById('installBtn');
+  var installDismiss = document.getElementById('installDismiss');
+
+  window.addEventListener('beforeinstallprompt', function (e) {
+    e.preventDefault();
+    deferredPrompt = e;
+    installBanner.style.display = 'block';
+  });
+
+  installBtn.addEventListener('click', function () {
+    if (!deferredPrompt) {
+      // Fallback: Chrome on Android still shows a clean install if opened from menu.
+      alert('To install: tap the 3-dot menu (top right) -> "Install app" or "Add to Home screen".');
+      return;
+    }
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(function () {
+      deferredPrompt = null;
+      installBanner.style.display = 'none';
+    });
+  });
+
+  installDismiss.addEventListener('click', function () {
+    installBanner.style.display = 'none';
+  });
+
+  window.addEventListener('appinstalled', function () {
+    installBanner.style.display = 'none';
+  });
 </script>
 </body>
 </html>
