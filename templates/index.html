@@ -2,8 +2,16 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Trainer - Day Activity</title>
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/icon-192.png">
+<meta name="theme-color" content="#0b1220">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Trainer Ops">
 <style>
   :root{
     --bg:#0b1220; --bg2:#0f1a30; --card:#15233f; --line:#2a3a5c; --in:#1b2c4d;
@@ -106,7 +114,7 @@
 </div>
 
 <div class="card">
-  <h3 style="color:var(--acc);margin:0 0 4px;font-size:15px">All 12 Trainers — Dashboard</h3>
+  <h3 style="color:var(--acc);margin:0 0 4px;font-size:15px">All Trainers — Dashboard</h3>
   <div class="row2" style="margin-top:10px">
     <input type="date" id="viewDate">
     <button type="button" class="ghost" id="loadBtn" style="margin-top:0">Load day</button>
@@ -315,6 +323,13 @@
       copyText(txt);
     });
   });
+
+  // Register service worker for installable PWA (Add to Home Screen).
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('/sw.js').catch(function () {});
+    });
+  }
 </script>
 </body>
 </html>

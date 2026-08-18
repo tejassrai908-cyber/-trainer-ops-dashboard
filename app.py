@@ -22,8 +22,10 @@ BASE = os.path.dirname(os.path.abspath(__file__))
 DB = os.environ.get("DATABASE_URL", os.path.join(BASE, "trainerops.db"))
 
 TRAINERS = [
-    "Linu Raju", "Sandeepkumar S", "Gaddam Vamsidhar Reddy", "Naga Sandeep Kumar",
-    "Tejas", "Sabin Peter", "Vinay", "Vimal", "Rasiq", "Sagar", "Kalai", "Faizan"
+    "Sandeepkumar S", "Linu Raju", "Vysakh O", "Anand M Nair",
+    "Maddineni Naga Sandeep", "Rai Tejas", "Gaddam Vamshidhar Reddy", "Kompelli Sagar",
+    "Vinay M S", "Sabin Peter NS", "Mohammed Faizan", "Vimal Jesu Raj Arulanandam",
+    "Mohamed Rasiq S", "Kalaiazhagan S", "Nalikatte Bhasker", "Abdul Ghani"
 ]
 ACTIVITY_OPTIONS = [
     "NHT Day 1", "NHT Day 2", "NHT Day 3", "NHT Day 4", "NHT Day 5", "NHT Day 6",
@@ -81,6 +83,30 @@ def fmt(d):
 @app.route("/")
 def index():
     return render_template("index.html")
+
+
+import os as _os
+from flask import send_from_directory, Response
+
+@app.route("/manifest.json")
+def serve_manifest():
+    return send_from_directory(BASE, "manifest.json", mimetype="application/manifest+json")
+
+@app.route("/sw.js")
+def serve_sw():
+    return send_from_directory(BASE, "sw.js", mimetype="application/javascript")
+
+@app.route("/icon-192.png")
+def serve_icon192():
+    return send_from_directory(BASE, "icon-192.png", mimetype="image/png")
+
+@app.route("/icon-512.png")
+def serve_icon512():
+    return send_from_directory(BASE, "icon-512.png", mimetype="image/png")
+
+@app.route("/favicon.ico")
+def serve_favicon():
+    return send_from_directory(BASE, "favicon.ico", mimetype="image/x-icon")
 
 
 @app.route("/api/config")
