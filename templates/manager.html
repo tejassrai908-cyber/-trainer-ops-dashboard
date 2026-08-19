@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Trainer Ops - Manager View</title>
+<link rel="icon" href="/favicon.ico">
+<meta name="theme-color" content="#0f2a4a">
+<style>
+  :root{--bg:#eef2f7;--card:#fff;--line:#d9e1ec;--in:#f4f7fb;--txt:#1c2a3a;--mut:#6b7c93;--acc:#0f2a4a;--acc2:#1f6feb;--ok:#1f9d57;--head:#f4c20d}
+  *{box-sizing:border-box}
+  body{font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--txt);padding:14px;margin:0;min-height:100vh;line-height:1.45}
+  .wrap{max-width:820px;margin:0 auto}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;margin:0 auto 16px;box-shadow:0 6px 20px rgba(20,40,70,.06)}
+  .headbar{background:var(--head);color:#1c2a3a;border-radius:10px;padding:12px 16px;font-weight:800;font-size:18px;display:flex;align-items:center;gap:10px}
+  .row{display:flex;gap:12px;flex-wrap:wrap;margin-top:14px}
+  .field{flex:1;min-width:170px}
+  label{display:block;font-size:12px;color:var(--mut);margin:0 0 5px;font-weight:600}
+  input,select{width:100%;padding:11px;border-radius:10px;border:1px solid var(--line);background:var(--in);color:var(--txt);font-size:15px;font-family:inherit;outline:none}
+  button{width:100%;margin-top:14px;padding:13px;border:0;border-radius:12px;background:linear-gradient(135deg,var(--acc2),#1748c0);color:#fff;font-size:15px;font-weight:800;cursor:pointer}
+  button.ghost{background:#fff;border:1px solid var(--line);color:var(--txt);font-weight:700}
+  .summary{background:var(--in);border:1px solid var(--line);border-radius:10px;padding:10px 14px;font-size:14px;font-weight:600;margin-top:12px}
+  table{width:100%;border-collapse:collapse;margin-top:10px;font-size:13.5px}
+  th,td{text-align:left;padding:10px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{color:var(--mut);font-size:12px;text-transform:uppercase;letter-spacing:.4px}
+  .pill{display:inline-block;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:700;background:rgba(31,157,87,.16);color:var(--ok)}
+  .pill.no{background:rgba(107,124,147,.16);color:var(--mut)}
+  .actn{font-weight:700}
+  .tasks{color:var(--mut);font-size:12.5px;margin-top:3px}
+  .back{display:inline-block;margin-bottom:6px;color:var(--acc2);text-decoration:none;font-size:13px;font-weight:700}
+  .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ok);color:#fff;padding:12px 20px;border-radius:12px;opacity:0;transition:.25s;font-weight:700;z-index:9}
+  .toast.show{opacity:1}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="/">← Back to Trainer view</a>
+  <div class="card">
+    <div class="headbar">📊 Manager — Overall Trainer Activity</div>
+    <div class="sub" style="color:var(--mut);font-size:12.5px;margin:8px 2px 0">All trainer submissions for a selected date. Individual trainers only ever see their own submission.</div>
+    <div class="row">
+      <div class="field"><label>Date</label><input type="date" id="viewDate"></div>
+      <div class="field" style="flex:0 0 auto;display:flex;align-items:flex-end"><button class="ghost" id="loadBtn" style="margin-top:0;width:auto;padding:11px 18px">Load</button></div>
+    </div>
+    <div class="summary" id="summary">—</div>
+    <div id="tableWrap"></div>
+    <button id="copyBtn">📋 Copy summary for WhatsApp</button>
+    <div id="waWrap"></div>
+  </div>
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+  function api(fn){ return fetch(fn).then(function(r){ return r.json(); }); }
+  function esc(s){ return (s==null?'':s).toString().replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  function toast(m){ var t=document.getElementById('toast'); t.textContent=m; t.className='toast show'; setTimeout(function(){ t.className='toast'; }, 2600); }
+  function copyText(t){
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(function(){ toast('Copied'); }, fb);
+    else fb(t);
+    function fb(x){ var ta=document.createElement('textarea'); ta.value=x; ta.style.position='fixed'; ta.style.top='-9999px'; document.body.appendChild(ta); ta.select(); try{document.execCommand('copy');toast('Copied');}catch(e){toast('Copy failed');} document.body.removeChild(ta); }
+  }
+
+  function load(){
+    var d = document.getElementById('viewDate').value;
+    if (!d){ alert('Pick a date.'); return; }
+    api('/api/report?date='+encodeURIComponent(d)).then(function(res){
+      document.getElementById('summary').textContent =
+        'Submitted: ' + res.submitted_count + ' / ' + res.trainer_count + ' trainers';
+      if (!res.submissions.length){
+        document.getElementById('tableWrap').innerHTML = '<p style="color:var(--mut);font-size:13px;margin-top:10px">No submissions for this date yet.</p>';
+        return;
+      }
+      var rows = res.submissions.map(function(s){
+        var tasks = s.tasks.map(function(tk){
+          return esc(tk.activity) + (tk.done ? ' ✔' : ' ○');
+        }).join('<br>');
+        return '<tr><td><b>'+esc(s.trainer_name)+'</b><div style="color:var(--mut);font-size:12px">'+esc(s.date)+' • '+esc(s.submitted_at)+'</div></td>' +
+          '<td class="actn">'+esc(s.activity_name)+'<div class="tasks">'+tasks+'</div></td></tr>';
+      }).join('');
+      document.getElementById('tableWrap').innerHTML =
+        '<table><thead><tr><th>Trainer</th><th>Activity (Tasks)</th></tr></thead><tbody>'+rows+'</tbody></table>';
+    }).catch(function(e){ toast('Error: '+e); });
+  }
+
+  document.getElementById('loadBtn').addEventListener('click', load);
+  document.getElementById('copyBtn').addEventListener('click', function(){
+    var d = document.getElementById('viewDate').value;
+    if (!d){ alert('Pick a date first.'); return; }
+    api('/api/report?date='+encodeURIComponent(d)).then(function(res){
+      var L = ['📊 Trainer Daily Activity — ' + res.date, 'Submitted: ' + res.submitted_count + '/' + res.trainer_count];
+      res.submissions.forEach(function(s){
+        L.push('• ' + s.trainer_name + ' — ' + s.activity_name);
+        s.tasks.forEach(function(tk){ L.push('    ' + (tk.done?'✔':'○') + ' ' + tk.activity); });
+      });
+      var txt = L.join('\n');
+      document.getElementById('waWrap').innerHTML = '<div class="summary" style="white-space:pre-wrap;font-weight:400">'+esc(txt)+'</div>';
+      copyText(txt);
+    });
+  });
+
+  // default to today
+  api('/api/config').then(function(cfg){
+    document.getElementById('viewDate').value = cfg.today;
+    load();
+  }).catch(function(){ /* today fallback */ });
+</script>
+</body>
+</html>

@@ -3,378 +3,359 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Trainer - Day Activity</title>
+<title>Trainer - Daily Activity</title>
 <link rel="manifest" href="/manifest.json">
 <link rel="icon" href="/favicon.ico">
 <link rel="apple-touch-icon" href="/icon-192.png">
-<meta name="theme-color" content="#0b1220">
+<meta name="theme-color" content="#0f2a4a">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Trainer Ops">
 <style>
   :root{
-    --bg:#0b1220; --bg2:#0f1a30; --card:#15233f; --line:#2a3a5c; --in:#1b2c4d;
-    --txt:#eaf1ff; --mut:#9fb2d4; --acc:#5b9dff; --acc2:#7c5cff; --ok:#34d399; --warn:#fbbf24; --bad:#f87171;
-    --r:16px;
+    --bg:#eef2f7; --card:#ffffff; --line:#d9e1ec; --in:#f4f7fb;
+    --txt:#1c2a3a; --mut:#6b7c93; --acc:#0f2a4a; --acc2:#1f6feb; --ok:#1f9d57; --okbg:#e7f6ee;
+    --warn:#b8860b; --bad:#d1453b; --head:#f4c20d; --headtxt:#1c2a3a;
+    --r:14px; --green:#e7f6ee; --greenbar:#34a853;
   }
   *{box-sizing:border-box}
-  body{font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:radial-gradient(1200px 600px at 50% -10%,#15294e 0%,var(--bg) 55%);color:var(--txt);padding:16px;margin:0;min-height:100vh}
-  .wrap{max-width:660px;margin:0 auto}
-  .card{background:linear-gradient(180deg,var(--card),#13203a);border:1px solid var(--line);border-radius:var(--r);padding:18px;margin:0 auto 16px;box-shadow:0 12px 30px rgba(0,0,0,.35)}
-  .head{display:flex;align-items:center;gap:10px;margin-bottom:4px}
-  .logo{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--acc),var(--acc2));display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;color:#04122b}
-  h2{margin:0;font-size:19px;letter-spacing:.2px}
-  .sub{color:var(--mut);font-size:12px;margin:2px 0 0 44px}
-  .bar{margin-top:12px;padding:10px 14px;border-radius:12px;font-size:13px;font-weight:600;text-align:center;background:rgba(52,211,153,.14);color:var(--ok);border:1px solid rgba(52,211,153,.25)}
-  .bar.warn{background:rgba(251,191,36,.14);color:var(--warn);border-color:rgba(251,191,36,.25)}
+  body{font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--txt);padding:14px;margin:0;min-height:100vh;line-height:1.45}
+  .wrap{max-width:680px;margin:0 auto}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:18px;margin:0 auto 16px;box-shadow:0 6px 20px rgba(20,40,70,.06)}
+  .headbar{background:var(--head);color:var(--headtxt);border-radius:10px;padding:12px 16px;font-weight:800;font-size:18px;letter-spacing:.3px;display:flex;align-items:center;gap:10px}
+  .headbar .t{font-size:20px}
+  .sub{color:var(--mut);font-size:12.5px;margin:8px 2px 0}
+  .bar{margin-top:12px;padding:9px 14px;border-radius:10px;font-size:13px;font-weight:600;text-align:center;background:var(--okbg);color:var(--ok);border:1px solid #c7e9d6}
+  .bar.warn{background:#fff6e6;color:var(--warn);border-color:#f0dca8}
+  .row{display:flex;gap:12px;flex-wrap:wrap;margin-top:14px}
+  .row .field{flex:1;min-width:170px}
+  label{display:block;font-size:12px;color:var(--mut);margin:0 0 5px;font-weight:600}
+  input,select{width:100%;padding:12px;border-radius:10px;border:1px solid var(--line);background:var(--in);color:var(--txt);font-size:15px;font-family:inherit;outline:none}
+  input:focus,select:focus{border-color:var(--acc2);box-shadow:0 0 0 3px rgba(31,111,235,.15)}
+  .datebox{background:var(--in);border:1px solid var(--line);border-radius:10px;padding:11px 14px;font-size:15px;font-weight:700;color:var(--acc)}
   .sec{margin-top:18px;padding-top:14px;border-top:1px solid var(--line)}
-  .sec h3{margin:0 0 12px;font-size:15px;color:var(--acc);display:flex;align-items:center;gap:8px}
-  .sec h3 .n{background:var(--acc);color:#04122b;border-radius:8px;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:800}
-  label{display:block;font-size:12px;color:var(--mut);margin:12px 0 5px}
-  input,select,textarea{width:100%;padding:12px;border-radius:11px;border:1px solid var(--line);background:var(--in);color:var(--txt);font-size:15px;font-family:inherit;outline:none;transition:.15s}
-  input:focus,select:focus,textarea:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(91,157,255,.18)}
-  textarea{resize:vertical;min-height:46px}
-  button{width:100%;margin-top:14px;padding:14px;border:0;border-radius:13px;background:linear-gradient(135deg,var(--acc),var(--acc2));color:#04122b;font-size:15px;font-weight:800;cursor:pointer;transition:.15s}
-  button:hover{filter:brightness(1.07)}
+  .secbar{background:var(--head);color:var(--headtxt);border-radius:9px;padding:9px 14px;font-weight:800;font-size:15px;letter-spacing:.2px}
+  .acc{margin-top:10px;border:1px solid var(--line);border-radius:11px;overflow:hidden;background:#fff}
+  .acc-head{display:flex;align-items:center;gap:10px;padding:13px 14px;cursor:pointer;user-select:none;background:var(--green);border-left:4px solid var(--greenbar);font-weight:700;font-size:15px}
+  .acc-head .chev{margin-left:auto;color:var(--mut);font-size:13px;transition:transform .15s}
+  .acc.open .acc-head .chev{transform:rotate(90deg)}
+  .acc-body{display:none;padding:6px 14px 14px;border-top:1px solid var(--line)}
+  .acc.open .acc-body{display:block}
+  .acc:not(.open) .acc-head{background:#fff;border-left-color:var(--line)}
+  .task{display:flex;gap:11px;align-items:flex-start;padding:11px 4px;border-bottom:1px dashed var(--line)}
+  .task:last-child{border-bottom:0}
+  .task input[type=checkbox]{width:22px;height:22px;margin-top:2px;flex:0 0 auto;accent-color:var(--ok);cursor:pointer}
+  .task .body{flex:1}
+  .task .act{font-weight:600;font-size:14.5px}
+  .task .ex{font-size:13px;color:var(--acc2);margin-top:2px}
+  .task .ca{font-size:12.5px;color:var(--warn);margin-top:2px}
+  .task .ca b{color:var(--warn)}
+  button{width:100%;margin-top:14px;padding:14px;border:0;border-radius:12px;background:linear-gradient(135deg,var(--acc2),#1748c0);color:#fff;font-size:15px;font-weight:800;cursor:pointer;transition:.15s}
+  button:hover{filter:brightness(1.06)}
   button:active{transform:translateY(1px)}
-  button.ghost{background:transparent;border:1px solid var(--line);color:var(--txt);font-weight:600}
-  button.sm{margin-top:10px;padding:10px;font-size:13px;background:var(--in);color:var(--txt);border:1px solid var(--line);font-weight:600}
-  button.rm{background:transparent;color:var(--bad);border:1px solid var(--line);width:auto;padding:8px 11px;font-size:13px;margin:0}
-  .row2{display:flex;gap:10px}
-  .row2>*{flex:1}
-  .act-row{display:flex;gap:8px;align-items:flex-start;margin-bottom:9px}
-  .act-row .a{flex:1.2} .act-row .c{flex:1.4}
-  .op-row{margin-bottom:14px;padding:14px;background:var(--in);border:1px solid var(--line);border-radius:13px}
-  .op-row .lbl{font-weight:700;font-size:14px;margin-bottom:9px;display:flex;align-items:center;justify-content:space-between;gap:8px}
-  .hl{font-size:11px;font-weight:700;color:#04122b;background:linear-gradient(135deg,var(--warn),#f59e0b);padding:3px 9px;border-radius:999px;white-space:nowrap}
-  .seg{display:flex;gap:8px;margin-top:6px}
-  .seg button{flex:1;margin:0;padding:10px;font-size:13px;font-weight:700;border:1px solid var(--line);background:var(--card);color:var(--mut);border-radius:10px}
-  .seg button.on{background:linear-gradient(135deg,var(--acc),var(--acc2));color:#04122b;border-color:transparent}
-  .seg button.on.no{background:linear-gradient(135deg,#f87171,#ef4444)}
-  .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ok);color:#04122b;padding:12px 20px;border-radius:12px;opacity:0;transition:.25s;font-weight:700;z-index:9;box-shadow:0 10px 24px rgba(0,0,0,.4)}
+  button:disabled{background:#c4ccd8;color:#fff;cursor:not-allowed;filter:none}
+  button.ghost{background:#fff;border:1px solid var(--line);color:var(--txt);font-weight:700}
+  button.green{background:linear-gradient(135deg,var(--ok),#157a43)}
+  .lock{margin-top:14px;padding:14px 16px;border-radius:12px;background:var(--okbg);border:1px solid #c7e9d6}
+  .lock .ok{font-weight:800;color:var(--ok);font-size:15px}
+  .lock .time{font-size:13px;color:var(--mut);margin-top:3px}
+  .subpanel{margin-top:14px}
+  .subpanel h4{margin:0 0 8px;font-size:14px;color:var(--acc)}
+  .subinfo{background:var(--in);border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-size:14px}
+  .subinfo .a{font-weight:700;color:var(--acc)}
+  .subact{display:flex;gap:10px;padding:9px 4px;border-bottom:1px dashed var(--line);font-size:14px}
+  .subact:last-child{border-bottom:0}
+  .subact .ic{color:var(--ok);font-weight:800}
+  .subact .ic.no{color:var(--mut)}
+  .subact .ex{color:var(--mut);font-size:12.5px;margin-top:1px}
+  .subact .ca{color:var(--warn);font-size:12.5px;margin-top:1px}
+  .wa-box{background:#0b1220;color:#eaf1ff;border:1px solid var(--line);border-radius:10px;padding:12px;white-space:pre-wrap;font-size:13px;line-height:1.55;margin-top:10px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;max-height:260px;overflow:auto}
+  .nd-row{display:flex;gap:10px;padding:10px 4px;border-bottom:1px dashed var(--line);font-size:13.5px}
+  .nd-row:last-child{border-bottom:0}
+  .nd-row .nm{flex:1.3;font-weight:600}
+  .nd-row .ex{flex:2;color:var(--mut)}
+  .hint{font-size:12px;color:var(--mut);margin-top:6px}
+  .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ok);color:#fff;padding:12px 20px;border-radius:12px;opacity:0;transition:.25s;font-weight:700;z-index:9;box-shadow:0 10px 24px rgba(0,0,0,.25)}
   .toast.show{opacity:1}
-  .dash{display:flex;align-items:center;padding:11px 12px;border:1px solid var(--line);border-radius:11px;gap:10px;margin-bottom:8px;background:var(--in)}
-  .dash .n{flex:1;font-weight:600;font-size:14px}
-  .dash .a{flex:2;font-size:12px;color:var(--mut);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .pill{display:inline-block;padding:4px 10px;border-radius:999px;font-size:11px;font-weight:700;white-space:nowrap}
-  .p-yes{background:rgba(52,211,153,.16);color:var(--ok)}
-  .p-no{background:rgba(148,163,184,.16);color:var(--mut)}
-  .wa-box{background:#0a1426;border:1px solid var(--line);border-radius:12px;padding:14px;white-space:pre-wrap;font-size:13px;line-height:1.55;margin-top:10px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
-  .req{color:var(--bad);font-size:11px}
-  .reg-row{margin:10px 0}
-  .reg-row .top{display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px;color:var(--txt)}
-  .reg-row .top b{color:var(--acc)}
-  .track{height:11px;border-radius:7px;background:var(--in);overflow:hidden;border:1px solid var(--line)}
-  .fill{height:100%;border-radius:7px;transition:width .4s}
-  .fill.mis{background:linear-gradient(90deg,#5b9dff,#7c5cff)}
-  .fill.att{background:linear-gradient(90deg,#34d399,#10b981)}
-  .avg{font-size:12px;color:var(--mut);margin:8px 0 4px;line-height:1.6}
-  .avg b{color:var(--txt)}
+  .toast.bad{background:var(--bad)}
+  /* Install banner */
+  .install-banner{display:flex;align-items:center;gap:12px;background:linear-gradient(135deg,#e7f0ff,#eef2f7);border:1px solid #c7dcff;border-radius:12px;padding:12px 14px;margin-top:12px}
+  .install-banner .il{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,var(--acc2),#1748c0);display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;flex:0 0 auto}
+  .install-banner .it{flex:1}
+  .install-banner .it b{font-size:14px}
+  .install-banner .it div{font-size:12px;color:var(--mut)}
+  .install-banner button{width:auto;margin:0;padding:9px 14px;font-size:13px}
 </style>
 </head>
 <body>
 <div class="wrap">
 
-<div class="card">
-  <div class="head">
-    <div class="logo">T</div>
-    <div>
-      <h2>Trainer - Day Activity</h2>
-    </div>
-  </div>
-  <div class="sub">Daily activity &amp; deliverables — one tap to WhatsApp</div>
-  <div class="bar" id="statusBar">Connecting…</div>
+  <div class="card">
+    <div class="headbar"><span class="t">📋</span> Trainer - Daily Activity</div>
+    <div class="sub">Select your name, pick today's ONE activity, complete it, and submit. One submission per day.</div>
+    <div class="bar" id="statusBar">Connecting…</div>
 
-  <div class="card install-banner" id="installBanner" style="display:none;background:linear-gradient(135deg,#1b3a6b,#2a2350);border-color:#3a5a9a">
-    <div style="display:flex;align-items:center;gap:12px">
-      <div class="logo">T</div>
-      <div style="flex:1">
-        <div style="font-weight:800;font-size:15px">Install Trainer Ops</div>
-        <div style="color:var(--mut);font-size:12px">Tap Install for an app icon on your home screen (no browser bar)</div>
-      </div>
-      <button type="button" id="installBtn" style="width:auto;margin:0;padding:10px 16px">Install</button>
-      <button type="button" id="installDismiss" style="width:auto;margin:0;padding:10px 12px;background:transparent;border:1px solid var(--line);color:var(--mut)">✕</button>
+    <div class="install-banner" id="installBanner" style="display:none">
+      <div class="il">T</div>
+      <div class="it"><b>Install Trainer Ops</b><div>Add to home screen for quick daily access</div></div>
+      <button type="button" id="installBtn">Install</button>
+      <button type="button" id="installDismiss" style="background:transparent;border:1px solid var(--line);color:var(--mut)">✕</button>
     </div>
-  </div>
 
-  <form id="form">
-    <div class="row2">
-      <div>
-        <label for="date">Date</label>
-        <input type="date" id="date" required>
+    <div class="row">
+      <div class="field">
+        <label>Current Date</label>
+        <div class="datebox" id="dateBox">—</div>
       </div>
-      <div>
-        <label for="trainer">Your Name (Trainer)</label>
+      <div class="field">
+        <label for="trainer">Trainer Name</label>
         <select id="trainer" required><option value="">-- select your name --</option></select>
       </div>
     </div>
-
-    <div class="sec">
-      <h3><span class="n">1</span> Trainer Day Activity</h3>
-      <div id="actList"></div>
-      <button type="button" class="sm" id="addAct">+ Add activity</button>
-    </div>
-
-    <div class="sec">
-      <h3><span class="n">2</span> Deliverables</h3>
-      <div id="opList"></div>
-    </div>
-
-    <button type="submit" id="submitBtn">Submit</button>
-  </form>
-</div>
-
-<div class="card">
-  <h3 style="color:var(--acc);margin:0 0 4px;font-size:15px">All Trainers — Dashboard</h3>
-  <div class="row2" style="margin-top:10px">
-    <input type="date" id="viewDate">
-    <button type="button" class="ghost" id="loadBtn" style="margin-top:0">Load day</button>
   </div>
-  <div id="dashWrap" style="margin-top:12px"></div>
-  <button type="button" class="ghost" id="copyBtn">📋 Copy WhatsApp update</button>
-  <div id="waWrap"></div>
-</div>
 
-<div class="card">
-  <h3 style="color:var(--acc);margin:0 0 6px;font-size:15px">MIS &amp; Attendance Regularity</h3>
-  <div class="avg" id="avgLine">Loading…</div>
-  <div id="regWrap"></div>
-</div>
+  <div class="card">
+    <div class="secbar">Trainer Day Activity</div>
+    <div class="hint">Pick ONE activity for today. It expands; the rest stay collapsed.</div>
+    <div id="accWrap" style="margin-top:10px"></div>
 
-<div class="toast" id="toast"></div>
+    <div id="submitArea">
+      <button id="submitBtn" disabled>Select an activity to submit</button>
+    </div>
+
+    <!-- Locked / submitted panel for the current trainer -->
+    <div id="lockPanel" style="display:none">
+      <div class="lock">
+        <div class="ok">✓ Activity Submitted</div>
+        <div class="time" id="lockTime"></div>
+      </div>
+
+      <div class="subpanel">
+        <h4>My Submitted Activity</h4>
+        <div class="subinfo" id="mySub"></div>
+        <div class="row" style="margin-top:12px">
+          <button type="button" class="ghost" id="copyBtn">📋 Copy Activity</button>
+          <button type="button" class="green" id="waBtn">📲 Share on WhatsApp</button>
+        </div>
+        <div id="waWrap"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="secbar">Next Day Activity</div>
+    <div class="hint">What's coming up next (planning reference only).</div>
+    <div id="ndWrap" style="margin-top:8px"></div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+</div>
 
 <script>
-  var CFG = null;
+  var CFG = null, CURRENT_TRAINER = "", SELECTED = null, LOCKED = false;
+  // Per-task completion state, keyed by "activityId:index". Updated on every
+  // checkbox change so the submit handler reads state directly (never re-queries
+  // the live DOM, which avoids stale/empty reads).
+  var taskDone = {};
 
-  function api(fn, opts) {
-    return fetch(fn, opts).then(function (r) { return r.json(); });
-  }
-  function toast(m) { var t = document.getElementById('toast'); t.textContent = m; t.className = 'toast show'; setTimeout(function(){ t.className='toast'; }, 2500); }
-  function esc(s){ return (s||'').toString().replace(/[&<>\"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
-  function opt(list, sel){ return list.map(function(v){ return '<option'+(v===sel?' selected':'')+'>'+esc(v)+'</option>'; }).join(''); }
+  function api(fn, opts){ return fetch(fn, opts).then(function(r){ return r.json(); }); }
+  function esc(s){ return (s==null?'':s).toString().replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  function toast(m, bad){ var t=document.getElementById('toast'); t.textContent=m; t.className='toast show'+(bad?' bad':''); setTimeout(function(){ t.className='toast'; }, 2600); }
 
-  function copyText(t) {
+  function copyText(t){
     if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(function(){ toast('Copied to clipboard'); }, fallback);
     else fallback(t);
   }
-  function fallback(t) {
-    var ta = document.createElement('textarea'); ta.value = t; ta.style.position='fixed'; ta.style.top='-9999px';
+  function fallback(t){
+    var ta=document.createElement('textarea'); ta.value=t; ta.style.position='fixed'; ta.style.top='-9999px';
     document.body.appendChild(ta); ta.select();
     try { document.execCommand('copy'); toast('Copied to clipboard'); } catch(e){ toast('Copy failed — long-press to copy'); }
     document.body.removeChild(ta);
   }
 
-  function addActivityRow(activity, comment) {
-    var div = document.createElement('div');
-    div.className = 'act-row';
-    div.innerHTML =
-      '<div class="a"><select class="act-sel"><option value="">-- activity --</option>'+opt(CFG.activities, activity)+'</select></div>' +
-      '<div class="c"><input class="act-com" placeholder="comment" value="'+esc(comment||'')+'"></div>' +
-      '<button type="button" class="rm" onclick="this.parentNode.remove()">✕</button>';
-    document.getElementById('actList').appendChild(div);
-  }
-
-  function buildOps() {
-    var wrap = document.getElementById('opList');
-    CFG.operations.forEach(function (op) {
-      var d = document.createElement('div');
-      d.className = 'op-row';
-      var html = '<div class="lbl"><span>' + esc(op.label) + '</span>' +
-                 (op.highlight ? '<span class="hl">📌 ' + esc(op.highlight) + '</span>' : '') + '</div>';
-      if (op.number) {
-        html += '<label>RM count (1–' + op.max + ')</label>' +
-                '<input type="number" min="' + op.min + '" max="' + op.max + '" data-op="' + op.id + '" data-f="number" placeholder="e.g. 7">';
-      } else {
-        // segmented toggle buttons for status
-        html += '<div class="seg" data-op="' + op.id + '">';
-        op.statusOptions.forEach(function (s, i) {
-          var noCls = (op.id === 'omni' && s === 'No') ? ' no' : '';
-          html += '<button type="button" class="seg-btn' + noCls + '" data-val="'+esc(s)+'">'+esc(s)+'</button>';
-        });
-        html += '</div><input type="hidden" data-op="' + op.id + '" data-f="status" value="">';
-        if (op.requireDate) {
-          html += '<label>Date <span class="req">(mandatory)</span></label>' +
-                  '<input type="date" data-op="' + op.id + '" data-f="date">';
-        }
-      }
-      d.innerHTML = html;
-      wrap.appendChild(d);
-      if (!op.number) {
-        // wire segmented buttons (all status ops, incl. date-requiring MIS/Attendance)
-        var seg = d.querySelector('.seg');
-        var hidden = d.querySelector('input[data-f="status"]');
-        seg.querySelectorAll('.seg-btn').forEach(function (b) {
-          b.addEventListener('click', function () {
-            seg.querySelectorAll('.seg-btn').forEach(function (x){ x.classList.remove('on'); });
-            b.classList.add('on');
-            hidden.value = b.getAttribute('data-val');
-          });
-        });
-      }
+  function buildAccordion(){
+    var wrap = document.getElementById('accWrap');
+    wrap.innerHTML = '';
+    CFG.activities.forEach(function(a){
+      var div = document.createElement('div');
+      div.className = 'acc';
+      div.dataset.id = a.id;
+      var tasksHtml = a.tasks.map(function(t, i){
+        return '<div class="task">' +
+          '<input type="checkbox" data-act="'+esc(a.id)+'" data-idx="'+i+'">' +
+          '<div class="body"><div class="act">'+esc(t.activity)+'</div>' +
+          (t.execution ? '<div class="ex">Execution: '+esc(t.execution)+'</div>' : '') +
+          (t.caution ? '<div class="ca"><b>Caution:</b> '+esc(t.caution)+'</div>' : '') +
+          '</div></div>';
+      }).join('');
+      div.innerHTML = '<div class="acc-head"><span>'+esc(a.name)+'</span><span class="chev">▶</span></div><div class="acc-body">'+tasksHtml+'</div>';
+      div.querySelector('.acc-head').addEventListener('click', function(){ selectActivity(a.id); });
+      wrap.appendChild(div);
     });
   }
 
-  api('/api/config').then(function (cfg) {
-    CFG = cfg;
-    var sb = document.getElementById('statusBar');
-    sb.textContent = 'Connected ✓'; sb.classList.remove('warn');
-    document.getElementById('date').value = cfg.today;
-    document.getElementById('viewDate').value = cfg.today;
-    var t = document.getElementById('trainer');
-    cfg.trainers.forEach(function (n){ var o=document.createElement('option'); o.value=n; o.textContent=n; t.appendChild(o); });
-    addActivityRow();
-    buildOps();
-    loadDashboard(cfg.today);
-    loadRegularity();
-  }).catch(function (err) { var sb=document.getElementById('statusBar'); sb.textContent = '⚠ ' + err; sb.classList.add('warn'); });
-
-  document.getElementById('addAct').addEventListener('click', function(){ addActivityRow(); });
-
-  document.getElementById('form').addEventListener('submit', function (e) {
-    e.preventDefault();
-    var activities = [];
-    document.querySelectorAll('#actList .act-row').forEach(function (row) {
-      var a = row.querySelector('.act-sel').value;
-      var c = row.querySelector('.act-com').value;
-      if (a) activities.push({ activity: a, comment: c });
-    });
-    var rawOps = {};
-    document.querySelectorAll('#opList [data-op]').forEach(function (el) {
-      var id = el.getAttribute('data-op'), f = el.getAttribute('data-f');
-      rawOps[id] = rawOps[id] || {};
-      rawOps[id][f] = el.value;
-    });
-    var operations = {};
-    var ok = true;
-    CFG.operations.forEach(function (op) {
-      var o = rawOps[op.id];
-      if (!o) return;
-      if (op.number) {
-        if (o.number) operations[op.id] = { number: o.number };
-        return;
-      }
-      if (!o.status) return;
-      if (op.requireDate && !o.date) { alert(op.label + ' needs a date.'); ok = false; return; }
-      operations[op.id] = { status: o.status };
-      if (op.requireDate) operations[op.id].date = o.date;
-    });
-    if (!ok) return;
-
-    var entry = {
-      date: document.getElementById('date').value,
-      trainer: document.getElementById('trainer').value,
-      activities: activities,
-      operations: operations
-    };
-    if (!entry.trainer) { alert('Select your name.'); return; }
-    if (!activities.length) { alert('Add at least one activity in section 1.'); return; }
-    var btn = document.getElementById('submitBtn');
-    btn.disabled = true; btn.textContent = 'Submitting…';
-    api('/api/submit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(entry) })
-      .then(function (res) {
-        btn.disabled = false; btn.textContent = 'Submit';
-        if (res.status === 'error') { alert(res.message); return; }
-        toast(res.updated ? 'Updated ' + entry.trainer : 'Saved ' + entry.trainer);
-        loadDashboard(entry.date);
-        loadRegularity();
-      })
-      .catch(function (err) { btn.disabled = false; btn.textContent = 'Submit'; alert('Error: ' + err); });
+  // Delegated listener: keep taskDone in sync with every checkbox toggle.
+  document.getElementById('accWrap').addEventListener('change', function(e){
+    var cb = e.target;
+    if (cb && cb.type === 'checkbox'){
+      taskDone[cb.getAttribute('data-act') + ':' + cb.getAttribute('data-idx')] = cb.checked;
+    }
   });
 
-  document.getElementById('loadBtn').addEventListener('click', function () {
-    var d = document.getElementById('viewDate').value;
-    if (!d) { alert('Pick a date.'); return; }
-    loadDashboard(d);
-  });
-
-  function loadDashboard(dateStr, cb) {
-    api('/api/report?date=' + encodeURIComponent(dateStr)).then(function (res) {
-      renderDashboard(res.rows);
-      if (cb) cb();
-    }).catch(function (err) { var sb=document.getElementById('statusBar'); sb.textContent = '⚠ ' + err; sb.classList.add('warn'); if (cb) cb(); });
+  function selectActivity(id){
+    if (LOCKED){ toast('Already submitted for today — submission is locked', true); return; }
+    SELECTED = (SELECTED === id) ? null : id;
+    document.querySelectorAll('#accWrap .acc').forEach(function(d){
+      var open = (d.dataset.id === SELECTED);
+      d.classList.toggle('open', open);
+      d.querySelector('.chev').textContent = open ? '▼' : '▶';
+    });
+    updateSubmitBtn();
   }
 
-  function renderDashboard(rows) {
-    var wrap = document.getElementById('dashWrap');
-    if (!rows || !rows.length) { wrap.innerHTML = '<p style="color:#9fb2d4;font-size:13px">No data.</p>'; return; }
-    var html = '';
-    rows.forEach(function (r) {
-      var act = r.submitted ? r.activities.map(function (a){ return esc(a.activity); }).join(', ') : 'Yet to update';
-      var pill = r.submitted ? '<span class="pill p-yes">✔ Submitted</span>' : '<span class="pill p-no">Yet to update</span>';
-      html += '<div class="dash"><div class="n">'+esc(r.trainer)+'</div><div class="a">'+act+'</div>'+pill+'</div>';
+  function updateSubmitBtn(){
+    var b = document.getElementById('submitBtn');
+    if (LOCKED){ b.disabled = true; b.textContent = 'Submitted — locked for today'; return; }
+    if (SELECTED){
+      var a = CFG.activities.find(function(x){ return x.id === SELECTED; });
+      b.disabled = false; b.textContent = 'SUBMIT ACTIVITY — ' + a.name;
+    } else {
+      b.disabled = true; b.textContent = 'Select an activity to submit';
+    }
+  }
+
+  function buildNextDay(){
+    var wrap = document.getElementById('ndWrap');
+    var ndDate = new Date(); ndDate.setDate(ndDate.getDate() + 1);
+    var iso = ndDate.toISOString().slice(0,10);
+    var parts = iso.split('-');
+    var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    var label = parts[2] + ' ' + months[parseInt(parts[1],10)-1] + ' ' + parts[0];
+    var html = '<div class="nd-row" style="font-weight:700;color:var(--acc)"><div class="nm">Next Day Date</div><div class="ex">'+label+'</div></div>';
+    CFG.next_day.forEach(function(n){
+      var a = CFG.activities.find(function(x){ return x.id === n.activity_id; });
+      if (!a) return;
+      html += '<div class="nd-row"><div class="nm">'+esc(a.name)+'</div><div class="ex">'+esc(n.execution||'')+'</div></div>';
     });
-    var done = rows.filter(function(r){ return r.submitted; }).length;
-    html = '<p style="color:#9fb2d4;font-size:13px;margin:0 0 8px">Submitted: '+done+'/'+rows.length+'</p>' + html;
     wrap.innerHTML = html;
   }
 
-  function loadRegularity() {
-    api('/api/regularity').then(function (res) {
-      document.getElementById('avgLine').innerHTML =
-        '<b>MIS window:</b> ' + esc(res.misWindow) + ' (' + res.misWindowDays + ' days)<br>' +
-        '<b>Att window:</b> ' + esc(res.attWindow) + ' (' + res.attWindowDays + ' days)<br>' +
-        '<b>Overall:</b> MIS ' + res.avgMisPct + '% &nbsp;•&nbsp; Attendance ' + res.avgAttPct + '%';
-      var html = '';
-      res.rows.forEach(function (r) {
-        html += '<div class="reg-row"><div class="top"><span>' + esc(r.trainer) + '</span>' +
-                '<span><b>MIS</b> ' + r.misPct + '% (' + r.misDone + '/' + r.misTotal + ') &nbsp; <b>ATT</b> ' + r.attPct + '% (' + r.attDone + '/' + r.attTotal + ')</span></div>' +
-                '<div class="track"><div class="fill mis" style="width:' + r.misPct + '%"></div></div>' +
-                '<div class="track" style="margin-top:5px"><div class="fill att" style="width:' + r.attPct + '%"></div></div></div>';
+  function renderSubmitted(s){
+    LOCKED = true;
+    document.getElementById('submitArea').style.display = 'none';
+    var panel = document.getElementById('lockPanel');
+    panel.style.display = 'block';
+    // time
+    var t = s.submitted_at.replace('T',' ');
+    document.getElementById('lockTime').textContent = 'Submitted at: ' + t;
+    // info
+    var html = '<div class="a">'+esc(s.activity_name)+'</div>';
+    html += '<div style="color:var(--mut);font-size:12.5px;margin-top:2px">Trainer: '+esc(s.trainer_name)+' &nbsp;•&nbsp; Date: '+esc(s.date)+'</div>';
+    s.tasks.forEach(function(tk){
+      html += '<div class="subact"><span class="ic'+(tk.done?'':' no')+'">'+(tk.done?'✔':'○')+'</span>' +
+        '<div><div>'+esc(tk.activity)+'</div>' +
+        (tk.execution?'<div class="ex">Execution: '+esc(tk.execution)+'</div>':'') +
+        (tk.caution?'<div class="ca">Caution: '+esc(tk.caution)+'</div>':'') +
+        '<div class="ex">Status: '+(tk.done?'Completed':'Not completed')+'</div></div></div>';
+    });
+    document.getElementById('mySub').innerHTML = html;
+    // collapse accordion
+    document.querySelectorAll('#accWrap .acc').forEach(function(d){ d.classList.remove('open'); d.querySelector('.chev').textContent='▶'; });
+    updateSubmitBtn();
+  }
+
+  function clearSubmitted(){
+    LOCKED = false;
+    document.getElementById('lockPanel').style.display = 'none';
+    document.getElementById('submitArea').style.display = 'block';
+    document.getElementById('waWrap').innerHTML = '';
+    updateSubmitBtn();
+  }
+
+  function loadMySubmission(){
+    if (!CURRENT_TRAINER) return;
+    api('/api/submission?trainer_id='+encodeURIComponent(CURRENT_TRAINER)+'&date='+encodeURIComponent(CFG.today))
+      .then(function(res){
+        if (res.submission){ renderSubmitted(res.submission); }
+        else { clearSubmitted(); }
+      }).catch(function(){ clearSubmitted(); });
+  }
+
+  // ---- submit ----
+  document.getElementById('submitBtn').addEventListener('click', function(){
+    if (LOCKED || !SELECTED || !CURRENT_TRAINER){ return; }
+    var a = CFG.activities.find(function(x){ return x.id === SELECTED; });
+    var tasks = a.tasks.map(function(t, i){
+      return { activity: t.activity, execution: t.execution, caution: t.caution,
+               done: !!taskDone[a.id + ':' + i] };
+    });
+    var btn = document.getElementById('submitBtn');
+    btn.disabled = true; btn.textContent = 'Submitting…';
+    api('/api/submit', { method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ trainer_id: CURRENT_TRAINER, date: CFG.today, activity_id: a.id, tasks: tasks }) })
+      .then(function(res){
+        if (res.status === 'error'){ toast(res.message, true); updateSubmitBtn(); return; }
+        toast('Submitted successfully ✓');
+        loadMySubmission();
+      })
+      .catch(function(err){ toast('Error: '+err, true); updateSubmitBtn(); });
+  });
+
+  // ---- copy / whatsapp ----
+  document.getElementById('copyBtn').addEventListener('click', function(){
+    if (!CURRENT_TRAINER) return;
+    api('/api/whatsapp?trainer_id='+encodeURIComponent(CURRENT_TRAINER)+'&date='+encodeURIComponent(CFG.today))
+      .then(function(res){
+        var txt = res.text;
+        document.getElementById('waWrap').innerHTML = '<div class="wa-box">'+esc(txt)+'</div>';
+        copyText(txt);
       });
-      document.getElementById('regWrap').innerHTML = html || '<p style="color:#9fb2d4;font-size:13px">No history yet.</p>';
-    }).catch(function () {});
-  }
-
-  document.getElementById('copyBtn').addEventListener('click', function () {
-    var d = document.getElementById('viewDate').value;
-    if (!d) { alert('Pick a date first.'); return; }
-    api('/api/whatsapp?date=' + encodeURIComponent(d)).then(function (res) {
-      var txt = res.text;
-      document.getElementById('waWrap').innerHTML = '<div class="wa-box">'+esc(txt)+'</div>';
-      copyText(txt);
-    });
+  });
+  document.getElementById('waBtn').addEventListener('click', function(){
+    if (!CURRENT_TRAINER) return;
+    api('/api/whatsapp?trainer_id='+encodeURIComponent(CURRENT_TRAINER)+'&date='+encodeURIComponent(CFG.today))
+      .then(function(res){
+        var url = 'https://wa.me/?text=' + encodeURIComponent(res.text);
+        window.open(url, '_blank');
+      });
   });
 
-  // Register service worker for installable PWA (Add to Home Screen).
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', function () {
-      navigator.serviceWorker.register('/sw.js').catch(function () {});
-    });
-  }
-
-  // Capture the browser's native install prompt and show our own Install button.
-  var deferredPrompt = null;
-  var installBanner = document.getElementById('installBanner');
-  var installBtn = document.getElementById('installBtn');
-  var installDismiss = document.getElementById('installDismiss');
-
-  window.addEventListener('beforeinstallprompt', function (e) {
-    e.preventDefault();
-    deferredPrompt = e;
-    installBanner.style.display = 'block';
+  // ---- trainer change ----
+  document.getElementById('trainer').addEventListener('change', function(){
+    CURRENT_TRAINER = this.value;
+    SELECTED = null;
+    // Reset lock state immediately so the new trainer is never blocked by the
+    // previous trainer's lock while the async fetch is in flight.
+    LOCKED = false;
+    clearSubmitted();
+    loadMySubmission();
   });
 
-  installBtn.addEventListener('click', function () {
-    if (!deferredPrompt) {
-      // Fallback: Chrome on Android still shows a clean install if opened from menu.
-      alert('To install: tap the 3-dot menu (top right) -> "Install app" or "Add to Home screen".');
-      return;
-    }
-    deferredPrompt.prompt();
-    deferredPrompt.userChoice.then(function () {
-      deferredPrompt = null;
-      installBanner.style.display = 'none';
-    });
+  // ---- init ----
+  api('/api/config').then(function(cfg){
+    CFG = cfg;
+    document.getElementById('statusBar').textContent = 'Connected ✓';
+    document.getElementById('statusBar').classList.remove('warn');
+    document.getElementById('dateBox').textContent = cfg.today;
+    var t = document.getElementById('trainer');
+    cfg.trainers.forEach(function(o){ var op=document.createElement('option'); op.value=o.id; op.textContent=o.name; t.appendChild(op); });
+    buildAccordion();
+    buildNextDay();
+  }).catch(function(err){
+    var sb=document.getElementById('statusBar'); sb.textContent='⚠ '+err; sb.classList.add('warn');
   });
 
-  installDismiss.addEventListener('click', function () {
-    installBanner.style.display = 'none';
+  // PWA install
+  if ('serviceWorker' in navigator){ window.addEventListener('load', function(){ navigator.serviceWorker.register('/sw.js').catch(function(){}); }); }
+  var deferredPrompt=null, banner=document.getElementById('installBanner');
+  window.addEventListener('beforeinstallprompt', function(e){ e.preventDefault(); deferredPrompt=e; banner.style.display='flex'; });
+  document.getElementById('installBtn').addEventListener('click', function(){
+    if(!deferredPrompt){ alert('To install: open the 3-dot menu (top right) -> "Install app" or "Add to Home screen".'); return; }
+    deferredPrompt.prompt(); deferredPrompt.userChoice.then(function(){ deferredPrompt=null; banner.style.display='none'; });
   });
-
-  window.addEventListener('appinstalled', function () {
-    installBanner.style.display = 'none';
-  });
+  document.getElementById('installDismiss').addEventListener('click', function(){ banner.style.display='none'; });
+  window.addEventListener('appinstalled', function(){ banner.style.display='none'; });
 </script>
 </body>
 </html>
