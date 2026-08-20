@@ -19,11 +19,15 @@ Persistence: SQLite (trainerops.db) inside the running instance.
 Run locally:  python app.py
 Run on host:  gunicorn -b 0.0.0.0:$PORT app:app
 """
-import json, os, datetime, sqlite3
+import json, os, datetime, sqlite3, re
 from flask import (Flask, request, jsonify, render_template,
                    send_from_directory)
 
 app = Flask(__name__)
+# Reject absurd payloads (abuse protection); 1 MB is far more than needed.
+app.config["MAX_CONTENT_LENGTH"] = 1 * 1024 * 1024
+
+DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 
 BASE = os.path.dirname(os.path.abspath(__file__))
 DB = os.environ.get("DATABASE_URL", os.path.join(BASE, "trainerops.db"))
@@ -196,7 +200,10 @@ ACTIVITY_BY_ID = {a["id"]: a for a in ACTIVITIES}
 
 
 def get_db():
-    conn = sqlite3.connect(DB)
+    conn = sqlite3.connect(DB, timeout=30)
+    # WAL = safe for many concurrent writers (14 trainers submitting at once)
+    # without the whole DB locking up.
+    conn.execute("PRAGMA journal_mode=WAL")
     conn.row_factory = sqlite3.Row
     return conn
 
@@ -246,9 +253,20 @@ def fmt_time(iso):
         return iso
 
 
-@app.route("/")
-def index():
-    return render_template("index.html")
+@app.route("/healthz")
+def healthz():
+    """Lightweight liveness probe for Render / uptime checks."""
+    return jsonify({"status": "ok", "time": datetime.datetime.now().isoformat(timespec="seconds")})
+
+
+@app.errorhandler(500)
+def handle_500(err):
+    return jsonify({"status": "error", "message": "Server error. Please retry."}), 500
+
+
+@app.errorhandler(413)
+def handle_413(err):
+    return jsonify({"status": "error", "message": "Payload too large."}), 413
 
 
 @app.route("/manager")
@@ -304,6 +322,8 @@ def api_submit():
 
     if not date or not trainer_id:
         return jsonify({"status": "error", "message": "Missing date or trainer"}), 400
+    if not DATE_RE.match(date):
+        return jsonify({"status": "error", "message": "Invalid date format"}), 400
     t = TRAINER_BY_ID.get(trainer_id)
     if not t:
         return jsonify({"status": "error", "message": "Unknown trainer"}), 400
