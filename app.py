@@ -30,7 +30,37 @@ app.config["MAX_CONTENT_LENGTH"] = 1 * 1024 * 1024
 DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 
 BASE = os.path.dirname(os.path.abspath(__file__))
-DB = os.environ.get("DATABASE_URL", os.path.join(BASE, "trainerops.db"))
+SQLITE_DB = os.path.join(BASE, "trainerops.db")
+
+# --- Database selection ---------------------------------------------------
+# If DATABASE_URL looks like a Postgres URL (set automatically by Render when
+# you attach a Postgres service), we use Postgres. Otherwise we fall back to a
+# local SQLite file. This keeps local dev simple and production on Render's
+# free Postgres (persists across deploys — no more data loss on redeploy).
+_RAW_DB_URL = os.environ.get("DATABASE_URL", "")
+USE_PG = bool(_RAW_DB_URL) and _RAW_DB_URL.startswith("postgres")
+# Normalize "postgres://" -> "postgresql://" for older psycopg2 builds.
+DB_URL = _RAW_DB_URL.replace("postgres://", "postgresql://", 1) if USE_PG else ""
+
+
+def _pg_conn():
+    import psycopg2
+    import psycopg2.extras
+    conn = psycopg2.connect(DB_URL, connect_timeout=30)
+    # RealDictCursor so rows behave like dicts (row["trainer_id"]) — same as
+    # sqlite3.Row, so the rest of the code doesn't need to change.
+    conn.cursor_factory = psycopg2.extras.RealDictCursor
+    return conn
+
+
+def q(sql):
+    """Normalize '?' placeholders to the active dialect's placeholder."""
+    return sql.replace("?", "%s") if USE_PG else sql
+
+
+def _is_unique_err(e):
+    s = str(e).lower()
+    return "unique" in s or "duplicate" in s
 
 # ---------------------------------------------------------------------------
 # CONFIGURABLE TRAINER LIST  (edit to add / remove trainers)
@@ -200,7 +230,9 @@ ACTIVITY_BY_ID = {a["id"]: a for a in ACTIVITIES}
 
 
 def get_db():
-    conn = sqlite3.connect(DB, timeout=30)
+    if USE_PG:
+        return _pg_conn()
+    conn = sqlite3.connect(SQLITE_DB, timeout=30)
     # WAL = safe for many concurrent writers (14 trainers submitting at once)
     # without the whole DB locking up.
     conn.execute("PRAGMA journal_mode=WAL")
@@ -210,19 +242,31 @@ def get_db():
 
 def init_db():
     conn = get_db()
-    # New single-activity-per-day submission model.
-    conn.execute("""CREATE TABLE IF NOT EXISTS submissions (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        trainer_id TEXT,
-        trainer_name TEXT,
-        date TEXT,
-        activity_id TEXT,
-        activity_name TEXT,
-        tasks TEXT,
-        submitted_at TEXT,
-        status TEXT,
-        UNIQUE(trainer_id, date)
-    )""")
+    if USE_PG:
+        conn.execute("""CREATE TABLE IF NOT EXISTS submissions (
+            id SERIAL PRIMARY KEY,
+            trainer_id TEXT,
+            trainer_name TEXT,
+            date TEXT,
+            activity_id TEXT,
+            activity_name TEXT,
+            tasks TEXT,
+            submitted_at TEXT,
+            status TEXT,
+            UNIQUE(trainer_id, date))""")
+    else:
+        conn.execute("""CREATE TABLE IF NOT EXISTS submissions (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            trainer_id TEXT,
+            trainer_name TEXT,
+            date TEXT,
+            activity_id TEXT,
+            activity_name TEXT,
+            tasks TEXT,
+            submitted_at TEXT,
+            status TEXT,
+            UNIQUE(trainer_id, date)
+        )""")
     conn.commit()
     conn.close()
 
@@ -353,7 +397,7 @@ def api_submit():
     conn = get_db()
     # Duplicate check first (defence in depth alongside the UNIQUE constraint).
     existing = conn.execute(
-        "SELECT id FROM submissions WHERE trainer_id=? AND date=?",
+        q("SELECT id FROM submissions WHERE trainer_id=? AND date=?"),
         (trainer_id, date)).fetchone()
     if existing:
         conn.close()
@@ -362,17 +406,24 @@ def api_submit():
 
     try:
         conn.execute(
-            """INSERT INTO submissions
+            q("""INSERT INTO submissions
                (trainer_id, trainer_name, date, activity_id, activity_name, tasks, submitted_at, status)
-               VALUES (?,?,?,?,?,?,?,?)""",
+               VALUES (?,?,?,?,?,?,?,?)"""),
             (trainer_id, t["name"], date, a["id"], a["name"],
              json.dumps(tasks, ensure_ascii=False),
              datetime.datetime.now().isoformat(timespec="seconds"), "submitted"))
         conn.commit()
-    except sqlite3.IntegrityError:
+    except Exception as e:
+        if _is_unique_err(e):
+            try:
+                conn.rollback()
+            except Exception:
+                pass
+            conn.close()
+            return jsonify({"status": "error",
+                            "message": "You have already submitted your activity for %s." % fmt_date(date)}), 409
         conn.close()
-        return jsonify({"status": "error",
-                        "message": "You have already submitted your activity for %s." % fmt_date(date)}), 409
+        raise
     conn.close()
     return jsonify({"status": "ok"})
 
@@ -388,7 +439,7 @@ def api_submission():
         return jsonify({"status": "error", "message": "Unknown trainer"}), 400
     conn = get_db()
     row = conn.execute(
-        "SELECT * FROM submissions WHERE trainer_id=? AND date=?",
+        q("SELECT * FROM submissions WHERE trainer_id=? AND date=?"),
         (trainer_id, date)).fetchone()
     conn.close()
     if not row:
@@ -429,7 +480,7 @@ def api_whatsapp():
         return jsonify({"status": "error", "message": "Unknown trainer"}), 400
     conn = get_db()
     row = conn.execute(
-        "SELECT * FROM submissions WHERE trainer_id=? AND date=?",
+        q("SELECT * FROM submissions WHERE trainer_id=? AND date=?"),
         (trainer_id, date)).fetchone()
     conn.close()
     if not row:
@@ -475,7 +526,7 @@ def api_admin_unlock():
     if not trainer_id or not date or not TRAINER_BY_ID.get(trainer_id):
         return jsonify({"status": "error", "message": "Missing or unknown trainer/date"}), 400
     conn = get_db()
-    conn.execute("DELETE FROM submissions WHERE trainer_id=? AND date=?",
+    conn.execute(q("DELETE FROM submissions WHERE trainer_id=? AND date=?"),
                  (trainer_id, date))
     conn.commit()
     conn.close()
@@ -492,7 +543,7 @@ def api_report():
     date = (request.args.get("date") or today()).strip()
     conn = get_db()
     rows = conn.execute(
-        "SELECT * FROM submissions WHERE date=? ORDER BY submitted_at",
+        q("SELECT * FROM submissions WHERE date=? ORDER BY submitted_at"),
         (date,)).fetchall()
     conn.close()
     out = [_row_to_dict(r) for r in rows]
