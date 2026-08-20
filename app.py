@@ -253,6 +253,11 @@ def fmt_time(iso):
         return iso
 
 
+@app.route("/")
+def index():
+    return render_template("index.html")
+
+
 @app.route("/healthz")
 def healthz():
     """Lightweight liveness probe for Render / uptime checks."""
