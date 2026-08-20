@@ -52,7 +52,6 @@ TRAINER_BY_NAME = {t["name"]: t for t in TRAINERS}
 # ---------------------------------------------------------------------------
 ACTIVITIES = [
     {"id": "nht1", "name": "NHT Day 1", "tasks": [
-        {"activity": "Shared Batch Details for Merchandize", "execution": "Delivery Address should be as per DTDC Pincodes", "caution": "Update the trainees' names as per Aadhar card"},
         {"activity": "NHT Travel & Accommodation – Heads-up", "execution": "Get the hotel checkout date from trainees & Travel plan", "caution": ""},
         {"activity": "Sent – Daily Summary Report", "execution": "Update Attendance, Quiz Score & Topics Covered", "caution": "Update the trainees' names as per Aadhar card"},
     ]},
@@ -62,41 +61,41 @@ ACTIVITIES = [
         {"activity": "Sent – Daily Summary Report", "execution": "Update Attendance, Quiz Score & Topics Covered", "caution": "Update the trainees' names as per Aadhar card"},
     ]},
     {"id": "nht3", "name": "NHT Day 3", "tasks": [
-        {"activity": "Update NHT Travel & Accommodation", "execution": "Check for the google sheet/from in DSF training Group", "caution": "Inform Manager if no update by EOD & Avoid for supervisors"},
+        {"activity": "Updated NHT Travel & Accommodation", "execution": "Check for the google sheet/form in DSF training Group", "caution": "Inform Manager if no update by EOD & Avoid for supervisors"},
         {"activity": "Sent – Daily Summary Report", "execution": "Update Attendance, Quiz Score & Topics Covered", "caution": "Update the trainees' names as per Aadhar card"},
     ]},
     {"id": "nht4", "name": "NHT Day 4", "tasks": [
-        {"activity": "Update the Buddy Up sheet shared Manager", "execution": "Share the details with trainees", "caution": "Ensure the trainees contact RMs and have a plan by EOD"},
-        {"activity": "Cover the Topics and train them for Mid Mock Call", "execution": "Give heads-up and assignment for Mid Mock call after buddy up", "caution": ""},
-        {"activity": "Plan your visit with NHT RM or JS RM", "execution": "Inform the manager about your plan", "caution": ""},
+        {"activity": "Updated the Buddy Up sheet shared by Manager", "execution": "Share the details with trainees", "caution": "Ensure the trainees contact RMs and have a plan by EOD"},
+        {"activity": "Covered the Topics and Trained them for Mid Mock Call", "execution": "Give heads-up and assignment for Mid Mock call after buddy up", "caution": ""},
+        {"activity": "Planned your visit with NHT RM or JS RM", "execution": "Inform the manager about your plan", "caution": ""},
         {"activity": "Sent – Daily Summary Report", "execution": "Update Attendance, Quiz Score & Topics Covered", "caution": "Update the trainees' names as per Aadhar card"},
     ]},
     {"id": "buddy1", "name": "Buddy Up – Day 1", "tasks": [
-        {"activity": "Ensure the trainees meet their RMs", "execution": "Inform how they should plan to meet their RM by 8.30am", "caution": "Ensure every trainee meet his RM and update the same to manager"},
-        {"activity": "Visit Barge with NHT RM or JS RM", "execution": "Do Evaluation and Record Every Visit", "caution": "Fill the Matrix Go One day Prior for RM Assignment"},
+        {"activity": "Ensured the trainees meet their RMs", "execution": "Inform how they should plan to meet their RM by 8.30am", "caution": "Ensure every trainee meet his RM and update the same to manager"},
+        {"activity": "Planned Visit Barge with NHT RM or JS RM", "execution": "Do Evaluation and Record Every Visit", "caution": "Fill the Matrix Go One day Prior for RM Assignment"},
         {"activity": "Sent – Visit Barge email on same day", "execution": "", "caution": "Highlight the reason if recording is not done"},
     ]},
     {"id": "buddy2", "name": "Buddy Up – Day 2", "tasks": [
-        {"activity": "Ensure the trainees meet their RMs", "execution": "Inform how they should plan to meet their RM by 8.30am", "caution": "Ensure every trainee meet his RM and update the same to manager"},
-        {"activity": "Visit Barge with NHT RM or JS RM", "execution": "Do Evaluation and Record Every Visit", "caution": "Fill the Matrix Go One day Prior for RM Assignment"},
+        {"activity": "Ensured the trainees meet their RMs", "execution": "Inform how they should plan to meet their RM by 8.30am", "caution": "Ensure every trainee meet his RM and update the same to manager"},
+        {"activity": "Planned Visit Barge with NHT RM or JS RM", "execution": "Do Evaluation and Record Every Visit", "caution": "Fill the Matrix Go One day Prior for RM Assignment"},
         {"activity": "Sent – Email for Mid Mock Call Certification", "execution": "", "caution": ""},
         {"activity": "Sent – Visit Barge email on same day", "execution": "", "caution": "Highlight the reason if recording is not done"},
     ]},
     {"id": "nht5", "name": "NHT Day 5", "tasks": [
-        {"activity": "Debriefing Session about buddy up experience", "execution": "Do an activity and collect feedback", "caution": ""},
-        {"activity": "Conduct Mid Mock Call Certification", "execution": "Do follow-up to complete on the same day", "caution": "Ensure the assessor fills the form after the mock call"},
+        {"activity": "Conducted Debriefing Session about buddy up experience", "execution": "Do an activity and collect feedback", "caution": ""},
+        {"activity": "Conducted Mid Mock Call Certification", "execution": "Do follow-up to complete on the same day", "caution": "Ensure the assessor fills the form after the mock call"},
         {"activity": "Sent – Matrix ID creation request email", "execution": "Follow the standard format", "caution": "Do follow up if it is not done"},
         {"activity": "Sent – Daily Summary Report", "execution": "Update Attendance, Quiz Score & Topics Covered", "caution": "Update the trainees' names as per Aadhar card"},
     ]},
     {"id": "nht6", "name": "NHT Day 6", "tasks": [
-        {"activity": "Fill the RAG Report", "execution": "Complete by EOD without deviation", "caution": ""},
+        {"activity": "Filled the RAG Report", "execution": "Complete by EOD without deviation", "caution": ""},
         {"activity": "Sent – Progressive Dialer Request Email", "execution": "Follow the standard format", "caution": ""},
         {"activity": "Sent – Daily Summary Report", "execution": "Update Attendance, Quiz Score & Topics Covered", "caution": "Update the trainees' names as per Aadhar card"},
     ]},
     {"id": "nht7", "name": "NHT Day 7", "tasks": [
         {"activity": "Supported for Trainee - NPS Account Creation", "execution": "Collect the PRAN and updated in the sheet", "caution": "Error should be shared in the NPS what's group for support"},
         {"activity": "Sent – Progressive Dialer Request Email", "execution": "Follow the standard format", "caution": "Do follow up if it is not done"},
-        {"activity": "Ops Leader Connect with Batch", "execution": "Inform manager if there is in change in plan", "caution": "Do follow up and send MOM via email with picture"},
+        {"activity": "Conducted Ops Leader Connect with Batch", "execution": "Inform manager if there is any change in plan", "caution": "Do follow up and send MOM via email with picture"},
         {"activity": "Sent – Daily Summary Report", "execution": "Update Attendance, Quiz Score & Topics Covered", "caution": "Update the trainees' names as per Aadhar card"},
     ]},
     {"id": "nht8", "name": "NHT Day 8", "tasks": [
@@ -105,7 +104,7 @@ ACTIVITIES = [
         {"activity": "Sent – Daily Summary Report", "execution": "Update Attendance, Quiz Score & Topics Covered", "caution": "Update the trainees' names as per Aadhar card"},
     ]},
     {"id": "nht9", "name": "NHT Day 9", "tasks": [
-        {"activity": "Provided System Matrix Login for Feature Exploration", "execution": "Exploration on Quick Action, Service and more", "caution": "Highlight to Matrix team if it is a Login Issue"},
+        {"activity": "Provided System Matrix Login for Feature Exploration", "execution": "Exploration on Quick Action Tools, Service and more", "caution": "Highlight to Matrix team if it is a Login Issue"},
         {"activity": "Checked for NHT Travel & Accommodation Tickets", "execution": "Find the tickets in the attachment & Hotel extension status", "caution": ""},
         {"activity": "Sent – Daily Summary Report", "execution": "Update Attendance, Quiz Score & Topics Covered", "caution": "Update the trainees' names as per Aadhar card"},
     ]},
@@ -116,51 +115,51 @@ ACTIVITIES = [
     {"id": "nht11", "name": "NHT Day 11", "tasks": [
         {"activity": "Sent – Email for Final Mock Call Certification", "execution": "", "caution": ""},
         {"activity": "Sent – Daily Summary Report", "execution": "Update Attendance, Quiz Score & Topics Covered", "caution": "Update the trainees' names as per Aadhar card"},
-        {"activity": "Block the Calendar for LatLong Session – Jayashankar", "execution": "Inform the manager or check in the group for status", "caution": ""},
+        {"activity": "Blocked the Calendar for LatLong Session – Jayashankar", "execution": "Inform the manager or check in the group for status", "caution": ""},
     ]},
     {"id": "nht12", "name": "NHT Day 12", "tasks": [
-        {"activity": "Conduct Final Mock Call Certification", "execution": "Do follow-up to complete on the same day", "caution": "Ensure the assessor fills the form after the mock call"},
+        {"activity": "Conducted Final Mock Call Certification", "execution": "Do follow-up to complete on the same day", "caution": "Ensure the assessor fills the form after the mock call"},
         {"activity": "Sent – Handover Email", "execution": "Update with Mock Call & Theoretical Assessment Scores", "caution": "Update the Handover Date accordingly"},
-        {"activity": "Visit Barge with NHT RMs", "execution": "Send an email if there is no trainee from base location", "caution": "Inform manager about the visit plan firstly"},
+        {"activity": "Planned Visit Barge with NHT RMs", "execution": "Send an email if there is no trainee from base location", "caution": "Inform manager about the visit plan firstly"},
     ]},
     {"id": "buddy3", "name": "Buddy Up – Day 3", "tasks": [
-        {"activity": "Ensure the trainees meet their RMs", "execution": "Inform how they should plan to meet their RM by 8.30am", "caution": "Ensure every trainee meet his RM and update the same to manager"},
-        {"activity": "Visit Barge with NHT RM or JS RM", "execution": "Do Evaluation and Record Every Visit", "caution": "Fill the Matrix Go One day Prior for RM Assignment"},
+        {"activity": "Ensured the trainees meet their RMs", "execution": "Inform how they should plan to meet their RM by 8.30am", "caution": "Ensure every trainee meet his RM and update the same to manager"},
+        {"activity": "Planned Visit Barge with NHT RM or JS RM", "execution": "Do Evaluation and Record Every Visit", "caution": "Fill the Matrix Go One day Prior for RM Assignment"},
         {"activity": "Sent – Visit Barge email on same day", "execution": "", "caution": "Highlight the reason if recording is not done"},
     ]},
     {"id": "tt1", "name": "Technical Training Day 1", "tasks": [
         {"activity": "Coordinated with IT for Asset collection", "execution": "Share email address & System Password with IT", "caution": "Inform the manager if there is any delay"},
-        {"activity": "Debriefing Session about buddy up experience", "execution": "Collected feedback", "caution": ""},
+        {"activity": "Conducted Debriefing Session about buddy up experience", "execution": "Collected feedback", "caution": ""},
         {"activity": "Sent – Email for Cake on Occasion of Graduation", "execution": "", "caution": ""},
         {"activity": "Assisted Trainees with PB Compliance Courses", "execution": "Inform the trainees to log into PB Connect", "caution": "Ensure every Trainee completes before leaving"},
-        {"activity": "Added the Trainees in the South Broadcast What's App Group", "execution": "Share the invite with them", "caution": ""},
+        {"activity": "Added the Trainees in the South Broadcast Group", "execution": "Share the invite with them", "caution": ""},
         {"activity": "Checked for NHT Handover Calendar Block", "execution": "Check with the SPOC person for an Update", "caution": ""},
     ]},
     {"id": "tt2", "name": "Technical Training Day 2", "tasks": [
-        {"activity": "Follow-Up done for NHT Handover Connect", "execution": "Check for the Invite shared in Groups", "caution": "Inform SPOC if there is any deviation"},
+        {"activity": "Follow-Up is Done for NHT Handover Connect", "execution": "Check for the Invite shared in Groups", "caution": "Inform SPOC if there is any deviation"},
         {"activity": "Follow-Up for Graduation Ceremony Connect", "execution": "Check for the Invite link or calendar blocked", "caution": "Inform Manager if there is no update"},
         {"activity": "Uploaded Graduation Photos", "execution": "Check for the Google Form to upload", "caution": "Ensure it is done on the same day"},
-        {"activity": "Conduct LinkedIn Post Activity", "execution": "Ensure the trainee post a picture tagging leaders", "caution": "This activity should be done without deviation"},
+        {"activity": "Conducted LinkedIn Post Activity", "execution": "Ensure the trainee post a picture tagging leaders", "caution": "This activity should be done without deviation"},
     ]},
     {"id": "visitbarge", "name": "Visit Barge", "tasks": [
         {"activity": "Visit Barge", "execution": "Inform Ops team & Fill the Matrix Go Form", "caution": "Ensure Completion of Visit Evaluation and Call Recording"},
-        {"activity": "Visit with – (Comment Box to type here)", "execution": "", "caution": ""},
+        {"activity": "Visit with –", "execution": "", "caution": "", "comment": True},
         {"activity": "Sent – Visit Barge email on same day", "execution": "", "caution": "Highlight the reason if recording is not done"},
     ]},
     {"id": "weekoff", "name": "Weekly Off", "tasks": [
         {"activity": "Weekly Off", "execution": "", "caution": ""},
     ]},
     {"id": "holiday", "name": "Holiday", "tasks": [
-        {"activity": "Holiday", "execution": "", "caution": ""},
+        {"activity": "Holiday", "execution": "", "caution": "", "no_box": True},
     ]},
     {"id": "leave", "name": "Leave", "tasks": [
-        {"activity": "Leave", "execution": "", "caution": ""},
+        {"activity": "Leave", "execution": "", "caution": "", "no_box": True},
     ]},
     {"id": "audit", "name": "Audit", "tasks": [
         {"activity": "Audit", "execution": "Check for Non-Audited Leads Using the Duplicate Tracker Link", "caution": ""},
     ]},
     {"id": "fostravel", "name": "FOS Visit – Travel", "tasks": [
-        {"activity": "FOS Visit – Travel", "execution": "Remark : (Comment Box to type here)", "caution": ""},
+        {"activity": "FOS Visit – Travel", "execution": "", "caution": "", "comment": True},
     ]},
 ]
 
@@ -308,15 +307,17 @@ def api_submit():
         return jsonify({"status": "error", "message": "Unknown activity"}), 400
 
     # Normalise tasks to the configured task list (ignore anything extra the
-    # client sends) and capture the per-task completion flag.
+    # client sends) and capture the per-task completion flag + comment.
     done_flags = {str(i): bool(task.get("done")) for i, task in enumerate(e.get("tasks", []))}
+    comment_text = {str(i): (task.get("comment") or "") for i, task in enumerate(e.get("tasks", []))}
     tasks = []
     for i, task in enumerate(a["tasks"]):
         tasks.append({
             "activity": task["activity"],
             "execution": task.get("execution", ""),
             "caution": task.get("caution", ""),
-            "done": done_flags.get(str(i), False)
+            "done": True if task.get("no_box") else done_flags.get(str(i), False),
+            "comment": comment_text.get(str(i), "")
         })
 
     conn = get_db()
@@ -417,6 +418,8 @@ def api_whatsapp():
             L.append("   Execution: %s" % tk["execution"])
         if tk.get("caution"):
             L.append("   Caution: %s" % tk["caution"])
+        if tk.get("comment"):
+            L.append("   Note: %s" % tk["comment"])
         L.append("   Status: %s" % ("Completed" if tk.get("done") else "Not completed"))
     return jsonify({"text": "\n".join(L)})
 

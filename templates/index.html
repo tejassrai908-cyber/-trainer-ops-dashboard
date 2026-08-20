@@ -54,6 +54,9 @@
   .task .ex{font-size:13px;color:var(--acc);margin-top:2px}
   .task .ca{font-size:12.5px;color:var(--warn);margin-top:2px}
   .task .ca b{color:var(--warn)}
+  .task.nobox{padding:11px 4px}
+  .cmt{width:100%;margin-top:8px;padding:9px 11px;border-radius:9px;border:1px solid var(--line);background:var(--bg);color:var(--txt);font-size:13.5px;font-family:inherit;outline:none}
+  .cmt:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(91,157,255,.18)}
   button{width:100%;margin-top:14px;padding:14px;border:0;border-radius:13px;background:linear-gradient(135deg,var(--acc),var(--acc2));color:#04122b;font-size:15px;font-weight:800;cursor:pointer;transition:.15s}
   button:hover{filter:brightness(1.07)}
   button:active{transform:translateY(1px)}
@@ -78,7 +81,11 @@
   .nd-row:last-child{border-bottom:0}
   .nd-row .nm{flex:1.3;font-weight:600}
   .nd-row .ex{flex:2;color:var(--mut)}
-  .nd-row.nd-hl{background:rgba(91,157,255,.10);border-left:3px solid var(--acc);border-radius:8px;padding-left:8px}
+  .nd-block{margin-bottom:6px;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:var(--in)}
+  .nd-block.nd-hl{background:rgba(91,157,255,.10);border-left:3px solid var(--acc)}
+  .nd-label{font-weight:700;color:var(--acc);margin-bottom:4px}
+  .nd-task{font-size:13px;color:var(--txt);padding:2px 0 2px 4px}
+  .nd-hl .nd-task{color:var(--txt)}
   .hint{font-size:12px;color:var(--mut);margin-top:6px}
   .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ok);color:#04122b;padding:12px 20px;border-radius:12px;opacity:0;transition:.25s;font-weight:700;z-index:9;box-shadow:0 10px 24px rgba(0,0,0,.4)}
   .toast.show{opacity:1}
@@ -167,6 +174,7 @@
   // checkbox change so the submit handler reads state directly (never re-queries
   // the live DOM, which avoids stale/empty reads).
   var taskDone = {};
+  var taskComment = {};
 
   function api(fn, opts){ return fetch(fn, opts).then(function(r){ return r.json(); }); }
   function esc(s){ return (s==null?'':s).toString().replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
@@ -191,11 +199,20 @@
       div.className = 'acc';
       div.dataset.id = a.id;
       var tasksHtml = a.tasks.map(function(t, i){
-        return '<div class="task">' +
-          '<input type="checkbox" data-act="'+esc(a.id)+'" data-idx="'+i+'">' +
+        if (t.no_box){
+          // Display-only line (e.g. Holiday / Leave): no tick box.
+          return '<div class="task nobox"><div class="body"><div class="act">'+esc(t.activity)+'</div>' +
+            (t.execution ? '<div class="ex">Execution: '+esc(t.execution)+'</div>' : '') +
+            (t.caution ? '<div class="ca"><b>Caution:</b> '+esc(t.caution)+'</div>' : '') +
+            '</div></div>';
+        }
+        var cb = '<input type="checkbox" data-act="'+esc(a.id)+'" data-idx="'+i+'">';
+        var comment = t.comment ? '<input type="text" class="cmt" data-act="'+esc(a.id)+'" data-idx="'+i+'" placeholder="Type here…">' : '';
+        return '<div class="task">' + cb +
           '<div class="body"><div class="act">'+esc(t.activity)+'</div>' +
           (t.execution ? '<div class="ex">Execution: '+esc(t.execution)+'</div>' : '') +
           (t.caution ? '<div class="ca"><b>Caution:</b> '+esc(t.caution)+'</div>' : '') +
+          comment +
           '</div></div>';
       }).join('');
       div.innerHTML = '<div class="acc-head"><span>'+esc(a.name)+'</span><span class="chev">▶</span></div><div class="acc-body">'+tasksHtml+'</div>';
@@ -204,11 +221,14 @@
     });
   }
 
-  // Delegated listener: keep taskDone in sync with every checkbox toggle.
+  // Delegated listener: keep taskDone (checkboxes) and taskComment (text inputs)
+  // in sync with every interaction, so the submit handler reads state directly.
   document.getElementById('accWrap').addEventListener('change', function(e){
-    var cb = e.target;
-    if (cb && cb.type === 'checkbox'){
-      taskDone[cb.getAttribute('data-act') + ':' + cb.getAttribute('data-idx')] = cb.checked;
+    var el = e.target;
+    if (el && el.type === 'checkbox'){
+      taskDone[el.getAttribute('data-act') + ':' + el.getAttribute('data-idx')] = el.checked;
+    } else if (el && el.classList.contains('cmt')){
+      taskComment[el.getAttribute('data-act') + ':' + el.getAttribute('data-idx')] = el.value;
     }
   });
 
@@ -241,18 +261,20 @@
       return;
     }
     var seq = CFG.next_day_sequence;
-    var note = CFG.next_day_note || {};
     var standalone = ['visitbarge','audit','weekoff','holiday','leave','fostravel'];
-    function row(id, label, highlight){
+    function block(id, label, highlight){
       var a = CFG.activities.find(function(x){ return x.id === id; });
       if (!a) return '';
-      var ex = note[a.id] || '';
-      return '<div class="nd-row'+(highlight?' nd-hl':'')+'"><div class="nm">'+esc(a.name)+'</div>'+
-             '<div class="ex">'+(label?('<b>'+esc(label)+':</b> '):'')+esc(ex)+'</div></div>';
+      var tasks = a.tasks.map(function(t){
+        return '<div class="nd-task">• '+esc(t.activity)+'</div>';
+      }).join('');
+      return '<div class="nd-block'+(highlight?' nd-hl':'')+'">' +
+             '<div class="nd-label"><b>'+esc(label)+':</b> '+esc(a.name)+'</div>' +
+             tasks + '</div>';
     }
     var html = '';
     // Current day
-    html += row(activityId, 'Current Day', true);
+    html += block(activityId, 'Current Day', true);
     // Next day
     var nextId;
     if (standalone.indexOf(activityId) !== -1){
@@ -262,7 +284,7 @@
       nextId = (idx !== -1 && idx + 1 < seq.length) ? seq[idx + 1] : null;
     }
     if (nextId){
-      html += row(nextId, 'Next Day', false);
+      html += block(nextId, 'Next Day', false);
     } else {
       html += '<div class="nd-row" style="color:var(--mut)">End of NHT batch — no further scheduled activity.</div>';
     }
@@ -285,6 +307,7 @@
         '<div><div>'+esc(tk.activity)+'</div>' +
         (tk.execution?'<div class="ex">Execution: '+esc(tk.execution)+'</div>':'') +
         (tk.caution?'<div class="ca">Caution: '+esc(tk.caution)+'</div>':'') +
+        (tk.comment?'<div class="ex">Note: '+esc(tk.comment)+'</div>':'') +
         '<div class="ex">Status: '+(tk.done?'Completed':'Not completed')+'</div></div></div>';
     });
     document.getElementById('mySub').innerHTML = html;
@@ -318,7 +341,8 @@
     var a = CFG.activities.find(function(x){ return x.id === SELECTED; });
     var tasks = a.tasks.map(function(t, i){
       return { activity: t.activity, execution: t.execution, caution: t.caution,
-               done: !!taskDone[a.id + ':' + i] };
+               done: t.no_box ? true : !!taskDone[a.id + ':' + i],
+               comment: taskComment[a.id + ':' + i] || "" };
     });
     var btn = document.getElementById('submitBtn');
     btn.disabled = true; btn.textContent = 'Submitting…';
