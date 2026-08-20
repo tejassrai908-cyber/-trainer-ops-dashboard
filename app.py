@@ -42,6 +42,10 @@ TRAINERS = [{"id": "T%02d" % (i + 1), "name": n} for i, n in enumerate(TRAINER_N
 TRAINER_BY_ID = {t["id"]: t for t in TRAINERS}
 TRAINER_BY_NAME = {t["name"]: t for t in TRAINERS}
 
+# Admin trainer who may unlock any trainer's submission so it can be re-done.
+# (Rai Tejas.) Gated by trainer id so only he gets the unlock action.
+ADMIN_TRAINER_ID = "T06"
+
 # ---------------------------------------------------------------------------
 # CONFIGURABLE ACTIVITY LIST  (edit to add / remove activities or their tasks)
 # Each activity: id, name, tasks[] where a task has:
@@ -284,6 +288,7 @@ def api_config():
         "activities": ACTIVITIES,
         "next_day_sequence": NHT_SEQUENCE,
         "next_day_note": NEXT_DAY_NOTE,
+        "admin_trainer_id": ADMIN_TRAINER_ID,
         "today": today()
     })
 
@@ -422,6 +427,28 @@ def api_whatsapp():
             L.append("   Note: %s" % tk["comment"])
         L.append("   Status: %s" % ("Completed" if tk.get("done") else "Not completed"))
     return jsonify({"text": "\n".join(L)})
+
+
+@app.route("/api/admin/unlock", methods=["POST"])
+def api_admin_unlock():
+    """Admin (Rai Tejas) deletes a trainer's submission for a date so it can be
+    re-submitted. Gated to ADMIN_TRAINER_ID only; rejects everyone else."""
+    e = request.get_json(force=True, silent=True) or {}
+    admin_id = (e.get("admin_id") or "").strip()
+    trainer_id = (e.get("trainer_id") or "").strip()
+    date = (e.get("date") or "").strip()
+    if admin_id != ADMIN_TRAINER_ID:
+        return jsonify({"status": "error",
+                        "message": "Only the admin (Rai Tejas) can unlock submissions."}), 403
+    if not trainer_id or not date or not TRAINER_BY_ID.get(trainer_id):
+        return jsonify({"status": "error", "message": "Missing or unknown trainer/date"}), 400
+    conn = get_db()
+    conn.execute("DELETE FROM submissions WHERE trainer_id=? AND date=?",
+                 (trainer_id, date))
+    conn.commit()
+    conn.close()
+    return jsonify({"status": "ok",
+                    "message": "Unlocked — trainer can now re-submit for %s." % fmt_date(date)})
 
 
 # ---------------------------------------------------------------------------

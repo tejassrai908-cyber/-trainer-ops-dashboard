@@ -339,6 +339,14 @@
   document.getElementById('submitBtn').addEventListener('click', function(){
     if (LOCKED || !SELECTED || !CURRENT_TRAINER){ return; }
     var a = CFG.activities.find(function(x){ return x.id === SELECTED; });
+    // Capture LIVE checkbox + comment values straight from the DOM so a comment
+    // the trainer typed but didn't blur (no 'change' event fired yet) is still
+    // saved. Without this, clicking Submit immediately after typing drops the text.
+    document.querySelectorAll('#accWrap input[data-act="'+a.id+'"]').forEach(function(el){
+      var idx = el.getAttribute('data-idx');
+      if (el.type === 'checkbox'){ taskDone[a.id + ':' + idx] = el.checked; }
+      else if (el.classList.contains('cmt')){ taskComment[a.id + ':' + idx] = el.value; }
+    });
     var tasks = a.tasks.map(function(t, i){
       return { activity: t.activity, execution: t.execution, caution: t.caution,
                done: t.no_box ? true : !!taskDone[a.id + ':' + i],

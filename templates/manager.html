@@ -47,6 +47,10 @@
       <div class="field"><label>Date</label><input type="date" id="viewDate"></div>
       <div class="field" style="flex:0 0 auto;display:flex;align-items:flex-end"><button class="ghost" id="loadBtn" style="margin-top:0;width:auto;padding:11px 18px">Load</button></div>
     </div>
+    <div class="row" style="margin-top:12px">
+      <div class="field"><label>Admin Trainer (Rai Tejas only)</label><select id="adminTrainer"><option value="">-- not admin --</option></select></div>
+    </div>
+    <div id="adminBadge" style="display:none" class="summary">🔓 ADMIN MODE — you can unlock a trainer's submission so they can re-submit.</div>
     <div class="summary" id="summary">—</div>
     <div id="tableWrap"></div>
     <button id="copyBtn">📋 Copy summary for WhatsApp</button>
@@ -56,6 +60,7 @@
 </div>
 
 <script>
+  var isAdmin = false;
   function api(fn){ return fetch(fn).then(function(r){ return r.json(); }); }
   function esc(s){ return (s==null?'':s).toString().replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
   function toast(m){ var t=document.getElementById('toast'); t.textContent=m; t.className='toast show'; setTimeout(function(){ t.className='toast'; }, 2600); }
@@ -79,11 +84,15 @@
         var tasks = s.tasks.map(function(tk){
           return esc(tk.activity) + (tk.done ? ' ✔' : ' ○');
         }).join('<br>');
+        var action = isAdmin
+          ? '<td><button class="ghost unlockBtn" data-tid="'+esc(s.trainer_id)+'" data-date="'+esc(s.date)+'" data-name="'+esc(s.trainer_name)+'">Unlock</button></td>'
+          : '';
         return '<tr><td><b>'+esc(s.trainer_name)+'</b><div style="color:var(--mut);font-size:12px">'+esc(s.date)+' • '+esc(s.submitted_at)+'</div></td>' +
-          '<td class="actn">'+esc(s.activity_name)+'<div class="tasks">'+tasks+'</div></td></tr>';
+          '<td class="actn">'+esc(s.activity_name)+'<div class="tasks">'+tasks+'</div></td>' + action + '</tr>';
       }).join('');
+      var head = '<tr><th>Trainer</th><th>Activity (Tasks)</th>' + (isAdmin ? '<th>Action</th>' : '') + '</tr>';
       document.getElementById('tableWrap').innerHTML =
-        '<table><thead><tr><th>Trainer</th><th>Activity (Tasks)</th></tr></thead><tbody>'+rows+'</tbody></table>';
+        '<table><thead>'+head+'</thead><tbody>'+rows+'</tbody></table>';
     }).catch(function(e){ toast('Error: '+e); });
   }
 
@@ -105,9 +114,34 @@
 
   // default to today
   api('/api/config').then(function(cfg){
+    window.CFG = cfg;
+    var at = document.getElementById('adminTrainer');
+    cfg.trainers.forEach(function(o){ var op=document.createElement('option'); op.value=o.id; op.textContent=o.name; at.appendChild(op); });
     document.getElementById('viewDate').value = cfg.today;
     load();
   }).catch(function(){ /* today fallback */ });
+
+  // Admin trainer select: only Rai Tejas (admin_trainer_id) reveals unlock actions.
+  document.getElementById('adminTrainer').addEventListener('change', function(){
+    isAdmin = (this.value === (window.CFG && window.CFG.admin_trainer_id));
+    document.getElementById('adminBadge').style.display = isAdmin ? 'block' : 'none';
+    load();
+  });
+
+  // Unlock a submission so the trainer can re-submit (admin only).
+  document.getElementById('tableWrap').addEventListener('click', function(e){
+    var btn = e.target.closest ? e.target.closest('button.unlockBtn') : null;
+    if (!btn) return;
+    if (!isAdmin){ alert('Only the admin (Rai Tejas) can unlock submissions.'); return; }
+    var tid = btn.getAttribute('data-tid'), d = btn.getAttribute('data-date'), nm = btn.getAttribute('data-name');
+    if (!confirm('Unlock ' + nm + ' for ' + d + ' so they can re-submit?')){ return; }
+    fetch('/api/admin/unlock', {method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({admin_id: document.getElementById('adminTrainer').value, trainer_id: tid, date: d})})
+      .then(function(r){ return r.json(); }).then(function(res){
+        if (res.status === 'ok'){ toast('Unlocked'); load(); }
+        else { toast(res.message || 'Error', true); }
+      }).catch(function(err){ toast('Error: '+err, true); });
+  });
 </script>
 </body>
 </html>
