@@ -90,7 +90,7 @@ ADMIN_TRAINER_ID = "T06"
 # ---------------------------------------------------------------------------
 ACTIVITIES = [
     {"id": "nht1", "name": "NHT Day 1", "tasks": [
-        {"activity": "Day 1 Attendance by 12pm", "execution": "Mark all Day 1 attendance before noon", "caution": ""},
+        {"activity": "Day 1 Attendance by 12pm", "execution": "Mark all Day 1 attendance before noon", "caution": "Inform manager if there is any dropout and mark as induction dropout"},
         {"activity": "Sent – Daily Summary Report", "execution": "Update Attendance, Quiz Score & Topics Covered", "caution": "Update the trainees' names as per Aadhar card"},
     ]},
     {"id": "nht2", "name": "NHT Day 2", "tasks": [
