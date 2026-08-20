@@ -84,6 +84,7 @@
   .subact .ca{color:var(--warn);font-size:12.5px;margin-top:1px}
   .wa-box{background:#0a1426;border:1px solid var(--line);border-radius:12px;padding:14px;white-space:pre-wrap;font-size:13px;line-height:1.55;margin-top:10px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;max-height:260px;overflow:auto;color:var(--txt)}
   .nd-row{display:flex;gap:10px;padding:10px 4px;border-bottom:1px dashed var(--line);font-size:13.5px}
+  .nd-ask{font-weight:700;color:var(--warn);font-style:italic;font-size:14px;padding:12px 4px;border-bottom:none}
   .nd-row:last-child{border-bottom:0}
   .nd-row .nm{flex:1.3;font-weight:600}
   .nd-row .ex{flex:2;color:var(--mut)}
@@ -269,8 +270,15 @@
       wrap.innerHTML = '<div class="nd-row" style="color:var(--mut)">Select and submit today’s activity to see the current & next day plan.</div>';
       return;
     }
-    var seq = CFG.next_day_sequence;
+    // Activities that are NOT part of the NHT batch (leave, holiday, audit,
+    // FOS visit travel, weekly off, visit barge, etc.) have no fixed "next day"
+    // in the NHT order — so we simply ask the trainer what they'll do next.
     var standalone = ['visitbarge','audit','weekoff','holiday','leave','fostravel'];
+    if (standalone.indexOf(activityId) !== -1){
+      wrap.innerHTML = '<div class="nd-row nd-ask">What will be your activity?</div>';
+      return;
+    }
+    var seq = CFG.next_day_sequence;
     function block(id, label, highlight){
       var a = CFG.activities.find(function(x){ return x.id === id; });
       if (!a) return '';
@@ -284,14 +292,10 @@
     var html = '';
     // Current day
     html += block(activityId, 'Current Day', true);
-    // Next day
+    // Next day (only for NHT-batch activities)
     var nextId;
-    if (standalone.indexOf(activityId) !== -1){
-      nextId = activityId; // standalone items show themselves only
-    } else {
-      var idx = seq.indexOf(activityId);
-      nextId = (idx !== -1 && idx + 1 < seq.length) ? seq[idx + 1] : null;
-    }
+    var idx = seq.indexOf(activityId);
+    nextId = (idx !== -1 && idx + 1 < seq.length) ? seq[idx + 1] : null;
     if (nextId){
       html += block(nextId, 'Next Day', false);
     } else {
