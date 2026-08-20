@@ -51,9 +51,15 @@
   .task input[type=checkbox]{width:22px;height:22px;margin-top:2px;flex:0 0 auto;accent-color:var(--ok);cursor:pointer}
   .task .body{flex:1}
   .task .act{font-weight:600;font-size:14.5px}
-  .task .ex{font-size:13px;color:var(--acc);margin-top:2px}
-  .task .ca{font-size:12.5px;color:var(--warn);margin-top:2px}
-  .task .ca b{color:var(--warn)}
+  /* Execution / Caution / Note are HEADINGS: small uppercase pills with a
+     colored left border, visually separated from the value text below so they
+     don't blend with the task lines that follow. */
+  .h-lbl{font-size:11px;font-weight:800;letter-spacing:.7px;text-transform:uppercase;margin-top:8px;padding:3px 9px;display:inline-block;border-radius:6px}
+  .h-ex{color:var(--acc);background:rgba(91,157,255,.13);border-left:3px solid var(--acc)}
+  .h-ca{color:var(--warn);background:rgba(251,191,36,.13);border-left:3px solid var(--warn)}
+  .h-no{color:var(--mut);background:rgba(159,178,212,.13);border-left:3px solid var(--mut)}
+  .v-ex,.v-ca,.v-no{font-size:13px;color:var(--txt);margin-top:2px;line-height:1.4}
+  .st{font-size:12px;color:var(--mut);margin-top:5px}
   .task.nobox{padding:11px 4px}
   .cmt{width:100%;margin-top:8px;padding:9px 11px;border-radius:9px;border:1px solid var(--line);background:var(--bg);color:var(--txt);font-size:13.5px;font-family:inherit;outline:none}
   .cmt:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(91,157,255,.18)}
@@ -110,6 +116,9 @@
       </div>
     </div>
     <div class="sub">Select your name, pick today's ONE activity, complete it, and submit. One submission per day.</div>
+    <div class="row" style="margin-top:10px">
+      <a href="/manager" style="flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:11px;border:1px solid var(--line);border-radius:11px;background:var(--in);color:var(--acc);font-size:13.5px;font-weight:700;text-decoration:none">⚙️ Manager / Admin view</a>
+    </div>
     <div class="bar" id="statusBar">Connecting…</div>
 
     <div class="install-banner" id="installBanner" style="display:none">
@@ -202,16 +211,16 @@
         if (t.no_box){
           // Display-only line (e.g. Holiday / Leave): no tick box.
           return '<div class="task nobox"><div class="body"><div class="act">'+esc(t.activity)+'</div>' +
-            (t.execution ? '<div class="ex">Execution: '+esc(t.execution)+'</div>' : '') +
-            (t.caution ? '<div class="ca"><b>Caution:</b> '+esc(t.caution)+'</div>' : '') +
+            (t.execution ? '<span class="h-lbl h-ex">Execution</span><div class="v-ex">'+esc(t.execution)+'</div>' : '') +
+            (t.caution ? '<span class="h-lbl h-ca">Caution</span><div class="v-ca">'+esc(t.caution)+'</div>' : '') +
             '</div></div>';
         }
         var cb = '<input type="checkbox" data-act="'+esc(a.id)+'" data-idx="'+i+'">';
         var comment = t.comment ? '<input type="text" class="cmt" data-act="'+esc(a.id)+'" data-idx="'+i+'" placeholder="Type here…">' : '';
         return '<div class="task">' + cb +
           '<div class="body"><div class="act">'+esc(t.activity)+'</div>' +
-          (t.execution ? '<div class="ex">Execution: '+esc(t.execution)+'</div>' : '') +
-          (t.caution ? '<div class="ca"><b>Caution:</b> '+esc(t.caution)+'</div>' : '') +
+          (t.execution ? '<span class="h-lbl h-ex">Execution</span><div class="v-ex">'+esc(t.execution)+'</div>' : '') +
+          (t.caution ? '<span class="h-lbl h-ca">Caution</span><div class="v-ca">'+esc(t.caution)+'</div>' : '') +
           comment +
           '</div></div>';
       }).join('');
@@ -305,10 +314,10 @@
     s.tasks.forEach(function(tk){
       html += '<div class="subact"><span class="ic'+(tk.done?'':' no')+'">'+(tk.done?'✔':'○')+'</span>' +
         '<div><div>'+esc(tk.activity)+'</div>' +
-        (tk.execution?'<div class="ex">Execution: '+esc(tk.execution)+'</div>':'') +
-        (tk.caution?'<div class="ca">Caution: '+esc(tk.caution)+'</div>':'') +
-        (tk.comment?'<div class="ex">Note: '+esc(tk.comment)+'</div>':'') +
-        '<div class="ex">Status: '+(tk.done?'Completed':'Not completed')+'</div></div></div>';
+        (tk.execution?'<span class="h-lbl h-ex">Execution</span><div class="v-ex">'+esc(tk.execution)+'</div>':'') +
+        (tk.caution?'<span class="h-lbl h-ca">Caution</span><div class="v-ca">'+esc(tk.caution)+'</div>':'') +
+        (tk.comment?'<span class="h-lbl h-no">Note</span><div class="v-no">'+esc(tk.comment)+'</div>':'') +
+        '<div class="st">Status: '+(tk.done?'Completed':'Not completed')+'</div></div></div>';
     });
     document.getElementById('mySub').innerHTML = html;
     // Next Day Activity: show CURRENT day (submitted) + NEXT day in NHT order.
