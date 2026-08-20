@@ -52,7 +52,7 @@ TRAINER_BY_NAME = {t["name"]: t for t in TRAINERS}
 # ---------------------------------------------------------------------------
 ACTIVITIES = [
     {"id": "nht1", "name": "NHT Day 1", "tasks": [
-        {"activity": "Checked for NHT - Plotters Updates", "execution": "Follow the updated plotter", "caution": "Make sure the latest version is followed"},
+        {"activity": "Checked for NHT - Plotter Update", "execution": "Follow the updated plotter", "caution": ""},
         {"activity": "Day 1 Attendance by 12pm", "execution": "Mark all Day 1 attendance before noon", "caution": ""},
         {"activity": "Updated - Induction Dropout", "execution": "Keep manager informed before email is sent", "caution": "Inform manager before sending the dropout email"},
         {"activity": "Email - Language Proficiency Test", "execution": "Highlight as Good, Average & Poor", "caution": "Categorise correctly"},
