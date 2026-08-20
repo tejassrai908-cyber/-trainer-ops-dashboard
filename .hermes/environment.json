@@ -1,0 +1,11 @@
+{
+  "name": "Flask app",
+  "kind": "flask",
+  "bootstrap": [],
+  "build": [],
+  "test": [],
+  "start": "C:\\Users\\tejas\\trainer-ops-local\\.venv\\Scripts\\python.exe C:\\Users\\tejas\\trainer-ops-local\\run_verify.py",
+  "port": 5055,
+  "readinessPath": "/",
+  "evidence": "Project venv has flask+gunicorn preinstalled; Hermes agent venv lacks pip, so bootstrap is intentionally empty."
+}
