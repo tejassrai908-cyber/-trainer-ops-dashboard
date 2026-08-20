@@ -316,11 +316,19 @@
     var html = '<div class="a">'+esc(s.activity_name)+'</div>';
     html += '<div style="color:var(--mut);font-size:12.5px;margin-top:2px">Trainer: '+esc(s.trainer_name)+' &nbsp;•&nbsp; Date: '+esc(s.date)+'</div>';
     s.tasks.forEach(function(tk){
+      // For the "Visit with –" task, the typed value is shown right after the
+      // hyphen (e.g. "Visit with – NHT") and the separate Note line is dropped.
+      var actLabel = esc(tk.activity);
+      var showNote = true;
+      if (tk.comment && tk.activity && tk.activity.indexOf('Visit with') === 0){
+        actLabel = esc(tk.activity).replace(/\s+$/,'') + ' ' + esc(tk.comment);
+        showNote = false;
+      }
       html += '<div class="subact"><span class="ic'+(tk.done?'':' no')+'">'+(tk.done?'✔':'○')+'</span>' +
-        '<div><div>'+esc(tk.activity)+'</div>' +
+        '<div><div>'+actLabel+'</div>' +
         (tk.execution?'<span class="h-lbl h-ex">Execution</span><div class="v-ex">'+esc(tk.execution)+'</div>':'') +
         (tk.caution?'<span class="h-lbl h-ca">Caution</span><div class="v-ca">'+esc(tk.caution)+'</div>':'') +
-        (tk.comment?'<span class="h-lbl h-no">Note</span><div class="v-no">'+esc(tk.comment)+'</div>':'') +
+        (showNote && tk.comment?'<span class="h-lbl h-no">Note</span><div class="v-no">'+esc(tk.comment)+'</div>':'') +
         '<div class="st">Status: '+(tk.done?'Completed':'Not completed')+'</div></div></div>';
     });
     document.getElementById('mySub').innerHTML = html;

@@ -418,13 +418,20 @@ def api_whatsapp():
     L.append("Activity: %s" % s["activity_name"])
     L.append("")
     for i, tk in enumerate(s["tasks"], 1):
-        L.append("%d. %s" % (i, tk["activity"]))
+        act = tk["activity"]
+        comment = tk.get("comment")
+        # For the "Visit with –" task, show the typed value right after the
+        # hyphen and drop the separate "Note:" line.
+        if comment and act.startswith("Visit with"):
+            act = act.rstrip() + " " + comment
+            comment = None
+        L.append("%d. %s" % (i, act))
         if tk.get("execution"):
             L.append("   Execution: %s" % tk["execution"])
         if tk.get("caution"):
             L.append("   Caution: %s" % tk["caution"])
-        if tk.get("comment"):
-            L.append("   Note: %s" % tk["comment"])
+        if comment:
+            L.append("   Note: %s" % comment)
         L.append("   Status: %s" % ("Completed" if tk.get("done") else "Not completed"))
     return jsonify({"text": "\n".join(L)})
 
