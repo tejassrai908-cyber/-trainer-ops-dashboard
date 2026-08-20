@@ -78,6 +78,7 @@
   .nd-row:last-child{border-bottom:0}
   .nd-row .nm{flex:1.3;font-weight:600}
   .nd-row .ex{flex:2;color:var(--mut)}
+  .nd-row.nd-hl{background:rgba(91,157,255,.10);border-left:3px solid var(--acc);border-radius:8px;padding-left:8px}
   .hint{font-size:12px;color:var(--mut);margin-top:6px}
   .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ok);color:#04122b;padding:12px 20px;border-radius:12px;opacity:0;transition:.25s;font-weight:700;z-index:9;box-shadow:0 10px 24px rgba(0,0,0,.4)}
   .toast.show{opacity:1}
@@ -233,19 +234,38 @@
     }
   }
 
-  function buildNextDay(){
+  function buildNextDay(activityId){
     var wrap = document.getElementById('ndWrap');
-    var ndDate = new Date(); ndDate.setDate(ndDate.getDate() + 1);
-    var iso = ndDate.toISOString().slice(0,10);
-    var parts = iso.split('-');
-    var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-    var label = parts[2] + ' ' + months[parseInt(parts[1],10)-1] + ' ' + parts[0];
-    var html = '<div class="nd-row" style="font-weight:700;color:var(--acc)"><div class="nm">Next Day Date</div><div class="ex">'+label+'</div></div>';
-    CFG.next_day.forEach(function(n){
-      var a = CFG.activities.find(function(x){ return x.id === n.activity_id; });
-      if (!a) return;
-      html += '<div class="nd-row"><div class="nm">'+esc(a.name)+'</div><div class="ex">'+esc(n.execution||'')+'</div></div>';
-    });
+    if (!activityId || !CFG.next_day_sequence){
+      wrap.innerHTML = '<div class="nd-row" style="color:var(--mut)">Select and submit today’s activity to see the current & next day plan.</div>';
+      return;
+    }
+    var seq = CFG.next_day_sequence;
+    var note = CFG.next_day_note || {};
+    var standalone = ['visitbarge','audit','weekoff','holiday','leave','fostravel'];
+    function row(id, label, highlight){
+      var a = CFG.activities.find(function(x){ return x.id === id; });
+      if (!a) return '';
+      var ex = note[a.id] || '';
+      return '<div class="nd-row'+(highlight?' nd-hl':'')+'"><div class="nm">'+esc(a.name)+'</div>'+
+             '<div class="ex">'+(label?('<b>'+esc(label)+':</b> '):'')+esc(ex)+'</div></div>';
+    }
+    var html = '';
+    // Current day
+    html += row(activityId, 'Current Day', true);
+    // Next day
+    var nextId;
+    if (standalone.indexOf(activityId) !== -1){
+      nextId = activityId; // standalone items show themselves only
+    } else {
+      var idx = seq.indexOf(activityId);
+      nextId = (idx !== -1 && idx + 1 < seq.length) ? seq[idx + 1] : null;
+    }
+    if (nextId){
+      html += row(nextId, 'Next Day', false);
+    } else {
+      html += '<div class="nd-row" style="color:var(--mut)">End of NHT batch — no further scheduled activity.</div>';
+    }
     wrap.innerHTML = html;
   }
 
@@ -268,6 +288,8 @@
         '<div class="ex">Status: '+(tk.done?'Completed':'Not completed')+'</div></div></div>';
     });
     document.getElementById('mySub').innerHTML = html;
+    // Next Day Activity: show CURRENT day (submitted) + NEXT day in NHT order.
+    buildNextDay(s.activity_id);
     // collapse accordion
     document.querySelectorAll('#accWrap .acc').forEach(function(d){ d.classList.remove('open'); d.querySelector('.chev').textContent='▶'; });
     updateSubmitBtn();
@@ -349,7 +371,7 @@
     var t = document.getElementById('trainer');
     cfg.trainers.forEach(function(o){ var op=document.createElement('option'); op.value=o.id; op.textContent=o.name; t.appendChild(op); });
     buildAccordion();
-    buildNextDay();
+    buildNextDay(null);
   }).catch(function(err){
     var sb=document.getElementById('statusBar'); sb.textContent='⚠ '+err; sb.classList.add('warn');
   });

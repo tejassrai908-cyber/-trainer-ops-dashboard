@@ -52,86 +52,144 @@ TRAINER_BY_NAME = {t["name"]: t for t in TRAINERS}
 # ---------------------------------------------------------------------------
 ACTIVITIES = [
     {"id": "nht1", "name": "NHT Day 1", "tasks": [
-        {"activity": "Checked for NHT - Plotter Update", "execution": "Follow the updated plotter", "caution": ""},
-        {"activity": "Day 1 Attendance by 12pm", "execution": "Mark all Day 1 attendance before noon", "caution": ""},
-        {"activity": "Updated - Induction Dropout", "execution": "Keep manager informed before email is sent", "caution": "Inform manager before sending the dropout email"},
-        {"activity": "Email - Language Proficiency Test", "execution": "Highlight as Good, Average & Poor", "caution": "Categorise correctly"},
-        {"activity": "Handout & COC Printout", "execution": "Print the latest Handout", "caution": "Use the current version"},
+        {"activity": "Shared Batch Details for Merchandize", "execution": "Delivery Address should be as per DTDC Pincodes", "caution": "Update the trainees' names as per Aadhar card"},
+        {"activity": "NHT Travel & Accommodation – Heads-up", "execution": "Get the hotel checkout date from trainees & Travel plan", "caution": ""},
+        {"activity": "Sent – Daily Summary Report", "execution": "Update Attendance, Quiz Score & Topics Covered", "caution": "Update the trainees' names as per Aadhar card"},
     ]},
     {"id": "nht2", "name": "NHT Day 2", "tasks": [
-        {"activity": "Merchandise Request - SENT", "execution": "Send the merchandise request", "caution": "Address should be as per DTDC Pincodes"},
-        {"activity": "NHT Travel & Accommodation - Headsup", "execution": "Raise travel/accommodation heads-up", "caution": "Check for checkout date & distance"},
-        {"activity": "Update employees details as per Aadhar", "execution": "Update employee records", "caution": "Check details in Day 1 attendance email"},
+        {"activity": "Shared Batch Details for Merchandize", "execution": "Delivery Address should be as per DTDC Pincodes", "caution": "Update the trainees' names as per Aadhar card"},
+        {"activity": "NHT Travel & Accommodation – Heads-up", "execution": "Get the hotel checkout date from trainees & Travel plan", "caution": ""},
+        {"activity": "Sent – Daily Summary Report", "execution": "Update Attendance, Quiz Score & Topics Covered", "caution": "Update the trainees' names as per Aadhar card"},
     ]},
     {"id": "nht3", "name": "NHT Day 3", "tasks": [
-        {"activity": "NHT Travel & Accommodation", "execution": "Update the Google - Hotel & Travel sheet", "caution": "Keep the sheet in sync"},
+        {"activity": "Update NHT Travel & Accommodation", "execution": "Check for the google sheet/from in DSF training Group", "caution": "Inform Manager if no update by EOD & Avoid for supervisors"},
+        {"activity": "Sent – Daily Summary Report", "execution": "Update Attendance, Quiz Score & Topics Covered", "caution": "Update the trainees' names as per Aadhar card"},
     ]},
     {"id": "nht4", "name": "NHT Day 4", "tasks": [
-        {"activity": "NHT Day 4 scheduled activities", "execution": "Follow the NHT Day 4 plan", "caution": ""},
+        {"activity": "Update the Buddy Up sheet shared Manager", "execution": "Share the details with trainees", "caution": "Ensure the trainees contact RMs and have a plan by EOD"},
+        {"activity": "Cover the Topics and train them for Mid Mock Call", "execution": "Give heads-up and assignment for Mid Mock call after buddy up", "caution": ""},
+        {"activity": "Plan your visit with NHT RM or JS RM", "execution": "Inform the manager about your plan", "caution": ""},
+        {"activity": "Sent – Daily Summary Report", "execution": "Update Attendance, Quiz Score & Topics Covered", "caution": "Update the trainees' names as per Aadhar card"},
+    ]},
+    {"id": "buddy1", "name": "Buddy Up – Day 1", "tasks": [
+        {"activity": "Ensure the trainees meet their RMs", "execution": "Inform how they should plan to meet their RM by 8.30am", "caution": "Ensure every trainee meet his RM and update the same to manager"},
+        {"activity": "Visit Barge with NHT RM or JS RM", "execution": "Do Evaluation and Record Every Visit", "caution": "Fill the Matrix Go One day Prior for RM Assignment"},
+        {"activity": "Sent – Visit Barge email on same day", "execution": "", "caution": "Highlight the reason if recording is not done"},
+    ]},
+    {"id": "buddy2", "name": "Buddy Up – Day 2", "tasks": [
+        {"activity": "Ensure the trainees meet their RMs", "execution": "Inform how they should plan to meet their RM by 8.30am", "caution": "Ensure every trainee meet his RM and update the same to manager"},
+        {"activity": "Visit Barge with NHT RM or JS RM", "execution": "Do Evaluation and Record Every Visit", "caution": "Fill the Matrix Go One day Prior for RM Assignment"},
+        {"activity": "Sent – Email for Mid Mock Call Certification", "execution": "", "caution": ""},
+        {"activity": "Sent – Visit Barge email on same day", "execution": "", "caution": "Highlight the reason if recording is not done"},
     ]},
     {"id": "nht5", "name": "NHT Day 5", "tasks": [
-        {"activity": "NHT Day 5 scheduled activities", "execution": "Follow the NHT Day 5 plan", "caution": ""},
+        {"activity": "Debriefing Session about buddy up experience", "execution": "Do an activity and collect feedback", "caution": ""},
+        {"activity": "Conduct Mid Mock Call Certification", "execution": "Do follow-up to complete on the same day", "caution": "Ensure the assessor fills the form after the mock call"},
+        {"activity": "Sent – Matrix ID creation request email", "execution": "Follow the standard format", "caution": "Do follow up if it is not done"},
+        {"activity": "Sent – Daily Summary Report", "execution": "Update Attendance, Quiz Score & Topics Covered", "caution": "Update the trainees' names as per Aadhar card"},
     ]},
     {"id": "nht6", "name": "NHT Day 6", "tasks": [
-        {"activity": "NHT Day 6 scheduled activities", "execution": "Follow the NHT Day 6 plan", "caution": ""},
+        {"activity": "Fill the RAG Report", "execution": "Complete by EOD without deviation", "caution": ""},
+        {"activity": "Sent – Progressive Dialer Request Email", "execution": "Follow the standard format", "caution": ""},
+        {"activity": "Sent – Daily Summary Report", "execution": "Update Attendance, Quiz Score & Topics Covered", "caution": "Update the trainees' names as per Aadhar card"},
     ]},
     {"id": "nht7", "name": "NHT Day 7", "tasks": [
-        {"activity": "NHT Day 7 scheduled activities", "execution": "Follow the NHT Day 7 plan", "caution": ""},
+        {"activity": "Supported for Trainee - NPS Account Creation", "execution": "Collect the PRAN and updated in the sheet", "caution": "Error should be shared in the NPS what's group for support"},
+        {"activity": "Sent – Progressive Dialer Request Email", "execution": "Follow the standard format", "caution": "Do follow up if it is not done"},
+        {"activity": "Ops Leader Connect with Batch", "execution": "Inform manager if there is in change in plan", "caution": "Do follow up and send MOM via email with picture"},
+        {"activity": "Sent – Daily Summary Report", "execution": "Update Attendance, Quiz Score & Topics Covered", "caution": "Update the trainees' names as per Aadhar card"},
     ]},
     {"id": "nht8", "name": "NHT Day 8", "tasks": [
-        {"activity": "NHT Day 8 scheduled activities", "execution": "Follow the NHT Day 8 plan", "caution": ""},
+        {"activity": "Sent – Lead Assignment Request Email", "execution": "Follow the standard format", "caution": "Do follow up if it is not done"},
+        {"activity": "Checked for NHT Travel & Accommodation Tickets", "execution": "Find the tickets in the attachment & Hotel extension status", "caution": "Share the tickets with the trainees personally"},
+        {"activity": "Sent – Daily Summary Report", "execution": "Update Attendance, Quiz Score & Topics Covered", "caution": "Update the trainees' names as per Aadhar card"},
     ]},
     {"id": "nht9", "name": "NHT Day 9", "tasks": [
-        {"activity": "NHT Day 9 scheduled activities", "execution": "Follow the NHT Day 9 plan", "caution": ""},
+        {"activity": "Provided System Matrix Login for Feature Exploration", "execution": "Exploration on Quick Action, Service and more", "caution": "Highlight to Matrix team if it is a Login Issue"},
+        {"activity": "Checked for NHT Travel & Accommodation Tickets", "execution": "Find the tickets in the attachment & Hotel extension status", "caution": ""},
+        {"activity": "Sent – Daily Summary Report", "execution": "Update Attendance, Quiz Score & Topics Covered", "caution": "Update the trainees' names as per Aadhar card"},
     ]},
     {"id": "nht10", "name": "NHT Day 10", "tasks": [
-        {"activity": "NHT Day 10 scheduled activities", "execution": "Follow the NHT Day 10 plan", "caution": ""},
+        {"activity": "Assisted Trainees with Assigned Lead Calls", "execution": "Ensure all leads are answered", "caution": "Highlight to Matrix team if it is a Login Issue"},
+        {"activity": "Sent – Daily Summary Report", "execution": "Update Attendance, Quiz Score & Topics Covered", "caution": "Update the trainees' names as per Aadhar card"},
     ]},
     {"id": "nht11", "name": "NHT Day 11", "tasks": [
-        {"activity": "NHT Day 11 scheduled activities", "execution": "Follow the NHT Day 11 plan", "caution": ""},
+        {"activity": "Sent – Email for Final Mock Call Certification", "execution": "", "caution": ""},
+        {"activity": "Sent – Daily Summary Report", "execution": "Update Attendance, Quiz Score & Topics Covered", "caution": "Update the trainees' names as per Aadhar card"},
+        {"activity": "Block the Calendar for LatLong Session – Jayashankar", "execution": "Inform the manager or check in the group for status", "caution": ""},
     ]},
     {"id": "nht12", "name": "NHT Day 12", "tasks": [
-        {"activity": "NHT Day 12 scheduled activities", "execution": "Follow the NHT Day 12 plan", "caution": ""},
+        {"activity": "Conduct Final Mock Call Certification", "execution": "Do follow-up to complete on the same day", "caution": "Ensure the assessor fills the form after the mock call"},
+        {"activity": "Sent – Handover Email", "execution": "Update with Mock Call & Theoretical Assessment Scores", "caution": "Update the Handover Date accordingly"},
+        {"activity": "Visit Barge with NHT RMs", "execution": "Send an email if there is no trainee from base location", "caution": "Inform manager about the visit plan firstly"},
+    ]},
+    {"id": "buddy3", "name": "Buddy Up – Day 3", "tasks": [
+        {"activity": "Ensure the trainees meet their RMs", "execution": "Inform how they should plan to meet their RM by 8.30am", "caution": "Ensure every trainee meet his RM and update the same to manager"},
+        {"activity": "Visit Barge with NHT RM or JS RM", "execution": "Do Evaluation and Record Every Visit", "caution": "Fill the Matrix Go One day Prior for RM Assignment"},
+        {"activity": "Sent – Visit Barge email on same day", "execution": "", "caution": "Highlight the reason if recording is not done"},
     ]},
     {"id": "tt1", "name": "Technical Training Day 1", "tasks": [
-        {"activity": "Technical Training Day 1 modules", "execution": "Deliver Day 1 technical training", "caution": ""},
+        {"activity": "Coordinated with IT for Asset collection", "execution": "Share email address & System Password with IT", "caution": "Inform the manager if there is any delay"},
+        {"activity": "Debriefing Session about buddy up experience", "execution": "Collected feedback", "caution": ""},
+        {"activity": "Sent – Email for Cake on Occasion of Graduation", "execution": "", "caution": ""},
+        {"activity": "Assisted Trainees with PB Compliance Courses", "execution": "Inform the trainees to log into PB Connect", "caution": "Ensure every Trainee completes before leaving"},
+        {"activity": "Added the Trainees in the South Broadcast What's App Group", "execution": "Share the invite with them", "caution": ""},
+        {"activity": "Checked for NHT Handover Calendar Block", "execution": "Check with the SPOC person for an Update", "caution": ""},
     ]},
     {"id": "tt2", "name": "Technical Training Day 2", "tasks": [
-        {"activity": "Technical Training Day 2 modules", "execution": "Deliver Day 2 technical training", "caution": ""},
+        {"activity": "Follow-Up done for NHT Handover Connect", "execution": "Check for the Invite shared in Groups", "caution": "Inform SPOC if there is any deviation"},
+        {"activity": "Follow-Up for Graduation Ceremony Connect", "execution": "Check for the Invite link or calendar blocked", "caution": "Inform Manager if there is no update"},
+        {"activity": "Uploaded Graduation Photos", "execution": "Check for the Google Form to upload", "caution": "Ensure it is done on the same day"},
+        {"activity": "Conduct LinkedIn Post Activity", "execution": "Ensure the trainee post a picture tagging leaders", "caution": "This activity should be done without deviation"},
     ]},
-    {"id": "tt3", "name": "Technical Training Day 3", "tasks": [
-        {"activity": "Technical Training Day 3 modules", "execution": "Deliver Day 3 technical training", "caution": ""},
-    ]},
-    {"id": "buddy", "name": "NHT Buddy Up", "tasks": [
-        {"activity": "NHT Buddy Up session", "execution": "Conduct the buddy-up pairing activity", "caution": ""},
-    ]},
-    {"id": "midmock", "name": "Mid Mock - Certification", "tasks": [
-        {"activity": "Mid Mock - Certification", "execution": "Run the mid mock and certification check", "caution": "Email was sent one day prior"},
+    {"id": "visitbarge", "name": "Visit Barge", "tasks": [
+        {"activity": "Visit Barge", "execution": "Inform Ops team & Fill the Matrix Go Form", "caution": "Ensure Completion of Visit Evaluation and Call Recording"},
+        {"activity": "Visit with – (Comment Box to type here)", "execution": "", "caution": ""},
+        {"activity": "Sent – Visit Barge email on same day", "execution": "", "caution": "Highlight the reason if recording is not done"},
     ]},
     {"id": "weekoff", "name": "Weekly Off", "tasks": [
-        {"activity": "Weekly Off", "execution": "No activity scheduled", "caution": ""},
+        {"activity": "Weekly Off", "execution": "", "caution": ""},
+    ]},
+    {"id": "holiday", "name": "Holiday", "tasks": [
+        {"activity": "Holiday", "execution": "", "caution": ""},
     ]},
     {"id": "leave", "name": "Leave", "tasks": [
-        {"activity": "Leave", "execution": "On leave", "caution": ""},
+        {"activity": "Leave", "execution": "", "caution": ""},
     ]},
-    {"id": "other", "name": "Other", "tasks": [
-        {"activity": "Other activity", "execution": "Describe the activity performed", "caution": ""},
+    {"id": "audit", "name": "Audit", "tasks": [
+        {"activity": "Audit", "execution": "Check for Non-Audited Leads Using the Duplicate Tracker Link", "caution": ""},
+    ]},
+    {"id": "fostravel", "name": "FOS Visit – Travel", "tasks": [
+        {"activity": "FOS Visit – Travel", "execution": "Remark : (Comment Box to type here)", "caution": ""},
     ]},
 ]
-ACTIVITY_BY_ID = {a["id"]: a for a in ACTIVITIES}
 
-# ---------------------------------------------------------------------------
-# CONFIGURABLE NEXT-DAY SCHEDULE  (edit to change what shows under
-# "Next Day Activity" - the upcoming activities with their execution notes).
-# Each item: activity_id (must exist in ACTIVITIES) + execution note.
-# ---------------------------------------------------------------------------
-NEXT_DAY_SCHEDULE = [
-    {"activity_id": "nht1", "execution": "Follow the updated plotter"},
-    {"activity_id": "nht2", "execution": "Send merchandise request as per DTDC Pincodes"},
-    {"activity_id": "nht3", "execution": "Update the Google - Hotel & Travel sheet"},
-    {"activity_id": "buddy", "execution": "Day 1 buddy-up pairing"},
-    {"activity_id": "midmock", "execution": "Email was sent one day prior"},
+# NHT batch sequence used to compute "Next Day Activity" after a submission.
+# After the submitted activity, only the CURRENT day + the NEXT day in this
+# order are shown (no day-after). Standalone items (visitbarge, audit,
+# weekoff, holiday, leave, fostravel) just show themselves as next.
+NHT_SEQUENCE = [
+    "nht1","nht2","nht3","nht4","buddy1","buddy2","nht5","nht6","nht7","nht8",
+    "nht9","nht10","nht11","nht12","buddy3","tt1","tt2"
 ]
+
+# Execution note shown in the Next Day Activity section for a given activity id.
+NEXT_DAY_NOTE = {a["id"]: "; ".join([t["execution"] for t in a["tasks"] if t["execution"]]) for a in ACTIVITIES}
+
+def next_day_for(activity_id):
+    """Return the next activity id in the NHT sequence, or the same id for
+    standalone items. Returns None if there is no defined next (end of chain)."""
+    if activity_id in ("visitbarge","audit","weekoff","holiday","leave","fostravel"):
+        return activity_id  # stand-alone: show itself only
+    try:
+        idx = NHT_SEQUENCE.index(activity_id)
+    except ValueError:
+        return None
+    if idx + 1 < len(NHT_SEQUENCE):
+        return NHT_SEQUENCE[idx + 1]
+    return None
+
+ACTIVITY_BY_ID = {a["id"]: a for a in ACTIVITIES}
 
 
 def get_db():
@@ -225,7 +283,8 @@ def api_config():
     return jsonify({
         "trainers": TRAINERS,
         "activities": ACTIVITIES,
-        "next_day": NEXT_DAY_SCHEDULE,
+        "next_day_sequence": NHT_SEQUENCE,
+        "next_day_note": NEXT_DAY_NOTE,
         "today": today()
     })
 
@@ -307,7 +366,7 @@ def api_submission():
 
 
 def _row_to_dict(row):
-    return {
+    d = {
         "trainer_id": row["trainer_id"],
         "trainer_name": row["trainer_name"],
         "date": row["date"],
@@ -317,6 +376,16 @@ def _row_to_dict(row):
         "submitted_at": row["submitted_at"],
         "status": row["status"],
     }
+    nid = next_day_for(row["activity_id"])
+    if nid and nid in ACTIVITY_BY_ID:
+        a = ACTIVITY_BY_ID[nid]
+        d["next_activity"] = {
+            "id": a["id"], "name": a["name"],
+            "execution": NEXT_DAY_NOTE.get(a["id"], "")
+        }
+    else:
+        d["next_activity"] = None
+    return d
 
 
 @app.route("/api/whatsapp")
