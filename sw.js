@@ -2,7 +2,7 @@
 // Caches the core app shell so it opens instantly and works offline.
 // IMPORTANT: bump CACHE (e.g. -v2, -v3) on every deploy so old cached
 // HTML/CSS is discarded and users get the latest version automatically.
-const CACHE = "trainer-ops-v12";
+const CACHE = "trainer-ops-v13";
 const CORE = [
   "/",
   "/icon-192.png",
