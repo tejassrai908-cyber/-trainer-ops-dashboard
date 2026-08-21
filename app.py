@@ -180,7 +180,6 @@ ACTIVITIES = [
         {"activity": "Conducted LinkedIn Post Activity", "execution": "Ensure the trainee post a picture tagging leaders", "caution": "This activity should be done without deviation"},
     ]},
     {"id": "visitbarge", "name": "Visit Barge", "tasks": [
-        {"activity": "Visit Barge", "execution": "Inform Ops team & Fill the Matrix Go Form", "caution": "Ensure Completion of Visit Evaluation and Call Recording"},
         {"activity": "Planned Visit Barge with", "execution": "Do Evaluation and Record Every Visit", "caution": "Fill the Matrix Go One day Prior for RM Assignment", "comment": True},
         {"activity": "Sent – Visit Barge email on same day", "execution": "", "caution": "Highlight the reason if recording is not done"},
     ]},
