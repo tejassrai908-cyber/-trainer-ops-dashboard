@@ -495,9 +495,10 @@ def api_whatsapp():
     for i, tk in enumerate(s["tasks"], 1):
         act = tk["activity"]
         comment = tk.get("comment")
-        # For the "Visit with –" task, show the typed value right after the
-        # hyphen and drop the separate "Note:" line.
-        if comment and act.startswith("Visit with"):
+        # For tasks whose name ends with " with" (e.g. "Planned Visit Barge
+        # with"), show the typed value right after the name (e.g.
+        # "Planned Visit Barge with NHT") and drop the separate "Note:" line.
+        if comment and act.rstrip().endswith(" with"):
             act = act.rstrip() + " " + comment
             comment = None
         L.append("%d. %s" % (i, act))

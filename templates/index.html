@@ -266,7 +266,7 @@
     }
   }
 
-  function buildNextDay(activityId){
+  function buildNextDay(activityId, curTasks){
     var wrap = document.getElementById('ndWrap');
     if (!activityId || !CFG.next_day_sequence){
       wrap.innerHTML = '<div class="nd-row" style="color:var(--mut)">Select and submit today’s activity to see the current & next day plan.</div>';
@@ -281,19 +281,25 @@
       return;
     }
     var seq = CFG.next_day_sequence;
-    function block(id, label, highlight){
+    function block(id, label, highlight, tasksArg){
       var a = CFG.activities.find(function(x){ return x.id === id; });
       if (!a) return '';
-      var tasks = a.tasks.map(function(t){
-        return '<div class="nd-task">• '+esc(t.activity)+'</div>';
+      var tasks = (tasksArg || a.tasks).map(function(t){
+        var lbl = t.activity;
+        // Only append when comment is a TYPED string (submitted data), not the
+        // boolean True flag from the config.
+        if (t.comment && typeof t.comment === 'string' && lbl.trim().endsWith(' with')){
+          lbl = lbl.trim() + ' ' + t.comment;
+        }
+        return '<div class="nd-task">• '+esc(lbl)+'</div>';
       }).join('');
       return '<div class="nd-block'+(highlight?' nd-hl':'')+'">' +
              '<div class="nd-label"><b>'+esc(label)+':</b> '+esc(a.name)+'</div>' +
              tasks + '</div>';
     }
     var html = '';
-    // Current day
-    html += block(activityId, 'Current Day', true);
+    // Current day (uses the SUBMITTED tasks so typed comments show)
+    html += block(activityId, 'Current Day', true, curTasks);
     // Next day (only for NHT-batch activities)
     var nextId;
     var idx = seq.indexOf(activityId);
@@ -318,11 +324,12 @@
     var html = '<div class="a">'+esc(s.activity_name)+'</div>';
     html += '<div style="color:var(--mut);font-size:12.5px;margin-top:2px">Trainer: '+esc(s.trainer_name)+' &nbsp;•&nbsp; Date: '+esc(s.date)+'</div>';
     s.tasks.forEach(function(tk){
-      // For the "Visit with –" task, the typed value is shown right after the
-      // hyphen (e.g. "Visit with – NHT") and the separate Note line is dropped.
+      // For tasks whose name ends with " with" (e.g. "Planned Visit Barge
+      // with"), the typed value is shown right after the name (e.g.
+      // "Planned Visit Barge with NHT") and the separate Note line is dropped.
       var actLabel = esc(tk.activity);
       var showNote = true;
-      if (tk.comment && tk.activity && tk.activity.indexOf('Visit with') === 0){
+      if (tk.comment && tk.activity && tk.activity.trim().endsWith(' with')){
         actLabel = esc(tk.activity).replace(/\s+$/,'') + ' ' + esc(tk.comment);
         showNote = false;
       }
@@ -335,7 +342,7 @@
     });
     document.getElementById('mySub').innerHTML = html;
     // Next Day Activity: show CURRENT day (submitted) + NEXT day in NHT order.
-    buildNextDay(s.activity_id);
+    buildNextDay(s.activity_id, s.tasks);
     // collapse accordion
     document.querySelectorAll('#accWrap .acc').forEach(function(d){ d.classList.remove('open'); d.querySelector('.chev').textContent='▶'; });
     updateSubmitBtn();
