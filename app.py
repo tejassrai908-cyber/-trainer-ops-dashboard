@@ -198,6 +198,9 @@ ACTIVITIES = [
     {"id": "fostravel", "name": "FOS Visit – Travel", "tasks": [
         {"activity": "FOS Visit – Travel", "execution": "", "caution": "", "comment": True},
     ]},
+    {"id": "misc", "name": "Miscellaneous", "tasks": [
+        {"activity": "Others", "execution": "", "caution": "", "comment": True},
+    ]},
 ]
 
 # NHT batch sequence used to compute "Next Day Activity" after a submission.
