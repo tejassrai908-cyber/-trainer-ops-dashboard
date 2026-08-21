@@ -275,7 +275,7 @@
     // Activities that are NOT part of the NHT batch (leave, holiday, audit,
     // FOS visit travel, weekly off, visit barge, etc.) have no fixed "next day"
     // in the NHT order — so we simply ask the trainer what they'll do next.
-    var standalone = ['visitbarge','audit','weekoff','holiday','leave','fostravel'];
+    var standalone = ['visitbarge','audit','weekoff','holiday','leave','fostravel','misc'];
     if (standalone.indexOf(activityId) !== -1){
       wrap.innerHTML = '<div class="nd-row nd-ask">What will be your activity?</div>';
       return;
