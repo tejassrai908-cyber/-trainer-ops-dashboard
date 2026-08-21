@@ -110,12 +110,12 @@ ACTIVITIES = [
     ]},
     {"id": "buddy1", "name": "Buddy Up – Day 1", "tasks": [
         {"activity": "Ensured the trainees meet their RMs", "execution": "Inform how they should plan to meet their RM by 8.30am", "caution": "Ensure every trainee meet his RM and update the same to manager"},
-        {"activity": "Planned Visit Barge with NHT RM or JS RM", "execution": "Do Evaluation and Record Every Visit", "caution": "Fill the Matrix Go One day Prior for RM Assignment"},
+        {"activity": "Planned Visit Barge with NHT RM or JS RM", "execution": "Do Evaluation and Record Every Visit", "caution": "Fill the Matrix Go One day Prior for RM Assignment", "comment": True},
         {"activity": "Sent – Visit Barge email on same day", "execution": "", "caution": "Highlight the reason if recording is not done"},
     ]},
     {"id": "buddy2", "name": "Buddy Up – Day 2", "tasks": [
         {"activity": "Ensured the trainees meet their RMs", "execution": "Inform how they should plan to meet their RM by 8.30am", "caution": "Ensure every trainee meet his RM and update the same to manager"},
-        {"activity": "Planned Visit Barge with NHT RM or JS RM", "execution": "Do Evaluation and Record Every Visit", "caution": "Fill the Matrix Go One day Prior for RM Assignment"},
+        {"activity": "Planned Visit Barge with NHT RM or JS RM", "execution": "Do Evaluation and Record Every Visit", "caution": "Fill the Matrix Go One day Prior for RM Assignment", "comment": True},
         {"activity": "Sent – Email for Mid Mock Call Certification", "execution": "", "caution": ""},
         {"activity": "Sent – Visit Barge email on same day", "execution": "", "caution": "Highlight the reason if recording is not done"},
     ]},
@@ -162,7 +162,7 @@ ACTIVITIES = [
     ]},
     {"id": "buddy3", "name": "Buddy Up – Day 3", "tasks": [
         {"activity": "Ensured the trainees meet their RMs", "execution": "Inform how they should plan to meet their RM by 8.30am", "caution": "Ensure every trainee meet his RM and update the same to manager"},
-        {"activity": "Planned Visit Barge with NHT RM or JS RM", "execution": "Do Evaluation and Record Every Visit", "caution": "Fill the Matrix Go One day Prior for RM Assignment"},
+        {"activity": "Planned Visit Barge with NHT RM or JS RM", "execution": "Do Evaluation and Record Every Visit", "caution": "Fill the Matrix Go One day Prior for RM Assignment", "comment": True},
         {"activity": "Sent – Visit Barge email on same day", "execution": "", "caution": "Highlight the reason if recording is not done"},
     ]},
     {"id": "tt1", "name": "Technical Training Day 1", "tasks": [
